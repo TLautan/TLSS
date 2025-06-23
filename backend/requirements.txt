@@ -1,0 +1,6 @@
+# backend/requirements.txt
+fastapi
+uvicorn[standard]
+pandas
+scikit-learn
+python-multipart
