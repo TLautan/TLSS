@@ -4,3 +4,5 @@ uvicorn[standard]
 pandas
 scikit-learn
 python-multipart
+sqlalchemy
+psycopg2-binary

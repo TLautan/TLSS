@@ -1,14 +1,27 @@
 # my-data-app/docker-compose.yml
 
-version: '3.8'
-
 services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=softsu
+      - POSTGRES_PASSWORD=softool
+      - POSTGRES_DB=softsusales
+
   backend:
     build: ./backend
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/code
+      - ./backend/app:/code/app
+    environment:
+      - DATABASE_URL=postgresql://softsu:softool@db:5432/softsusales
+    depends_on:
+      - db
 
   frontend:
     build: ./frontend
@@ -17,5 +30,9 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    command: npm run dev
     depends_on:
       - backend
+
+volumes:
+  postgres_data:
