@@ -1,8 +1,9 @@
 # backend/requirements.txt
 fastapi
+psycopg2-binary
 uvicorn[standard]
 pandas
 scikit-learn
 python-multipart
 sqlalchemy
-psycopg2-binary
+alembic

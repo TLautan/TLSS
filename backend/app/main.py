@@ -2,14 +2,21 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import analytics # Import your new router
+from app.routers import analytics, companies
 
 # Create the main FastAPI app instance
-app = FastAPI(title="Sales Management System API")
+app = FastAPI(title="営業管理システム")
 
 # Add CORS Middleware (as before)
 origins = [
+    "http://localhost",
     "http://localhost:3000",
+    "http://127.0.0.1",
+    "http://127.0.0.1:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://192.168.1.115",
+    "http://192.168.1.115:3000",
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -19,11 +26,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include the router from analytics.py
-# All endpoints defined in that file will now be part of your application.
 app.include_router(analytics.router, prefix="/api")
+app.include_router(companies.router, prefix="/api")
 
-# A simple root endpoint to confirm the app is running
+@app.get("/api/companies/")
+async def get_companies():
+    return {"message": "Companies data goes here"}
+
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the API!"}
+    return {"message": "いらっしゃい!"}

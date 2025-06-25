@@ -1,4 +1,4 @@
-# app/schemas/churn.py
+# backend/app/schemas/churn.py
 
 from pydantic import BaseModel
 from typing import List
