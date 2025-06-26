@@ -14,6 +14,7 @@ from app.models.activity import Activity
 from app.models.company import Company
 from app.models.deal import Deal
 from app.models.user import User
+from app.models.agency import Agency
 
 config = context.config
 
