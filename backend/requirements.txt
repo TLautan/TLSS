@@ -7,3 +7,5 @@ scikit-learn
 python-multipart
 sqlalchemy
 alembic
+passlib[bcrypt]
+pydantic[email]

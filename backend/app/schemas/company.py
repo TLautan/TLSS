@@ -1,15 +1,25 @@
-# backend/app/schemas/company.py
-
 from pydantic import BaseModel
-
-# Schema for data we expect when creating a company
-class CompanyCreate(BaseModel):
+from typing import Optional, Dict, Any
+from datetime import datetime
+class CompanyBase(BaseModel):
     company_name: str
-    industry: str
+    company_kana: Optional[str] = None
+    industry: Optional[str] = None
+    other_details: Optional[Dict[str, Any]] = None
 
-# Schema for data we will return when reading a company
-class Company(CompanyCreate):
+class CompanyCreate(CompanyBase):
+    pass
+
+class CompanyUpdate(BaseModel):
+    company_name: Optional[str] = None
+    company_kana: Optional[str] = None
+    industry: Optional[str] = None
+    other_details: Optional[Dict[str, Any]] = None
+
+class Company(CompanyBase):
     id: int
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
