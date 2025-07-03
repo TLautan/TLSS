@@ -1,32 +1,34 @@
-// frontend/app/layout.tsx
-import React from 'react';
-import type { Metadata } from 'next';
-import './globals.css';
-import Sidebar from '../components/common/sidebar'; // Import your Sidebar component
-import ThemeToggle from '../components/common/themetoggle'; // Import the new ThemeToggle component
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Sidebar from "@/components/common/sidebar";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Sales CRM System',
-  description: 'Manage your sales operations efficiently',
+  title: "Sales Management System",
+  description: "A dashboard for sales analytics and management.",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    // Remove the className="dark" from html here. ThemeToggle will manage it.
-    <html lang="ja">
-      <body>
+    <html lang="en" className="dark">
+      <body className={`${inter.className} bg-background text-foreground`}>
+        {/* Main Flex Container */}
         <div className="flex min-h-screen">
+          
+          {/* Sidebar Component */}
           <Sidebar />
-          <main className="flex-grow p-6 sm:p-8 bg-background text-foreground relative"> {/* Added relative for positioning */}
-            <div className="absolute top-4 right-4 z-10"> {/* Positioning for the toggle button */}
-              <ThemeToggle />
-            </div>
-            {children} {/* This is where your page content will be rendered */}
+
+          {/* Main Content Area */}
+          <main className="flex-grow p-6 sm:p-8 bg-muted/40">
+            {children} {/* Your page content will render here */}
           </main>
+
         </div>
       </body>
     </html>

@@ -23,8 +23,7 @@ export default function DataDisplay() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    //axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/data`)
-    axios.get('http://127.0.0.1:8000/api/data')
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/data`)
       .then(response => {
         setData(response.data);
         setLoading(false);

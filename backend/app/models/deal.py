@@ -22,23 +22,23 @@ class Deal(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    title = Column(String(255), nullable=False) # title VARCHAR(255) NOT NULL
-    value = Column(Numeric(15, 2), nullable=False) # value NUMERIC(15, 2) NOT NULL
-    
+    title = Column(String(255), nullable=False)
+    value = Column(Numeric(15, 2), nullable=False)
+
+    # name='deal_status' must match the SQL type name
     status = Column(SQLAlchemyEnum(DealStatus, name='deal_status', create_type=False), default=DealStatus.in_progress, nullable=False)
     type = Column(SQLAlchemyEnum(DealType, name='deal_type', create_type=False), nullable=False)
-    
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False) # user_id INTEGER NOT NULL REFERENCES users(id)
-    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False) # company_id INTEGER NOT NULL REFERENCES companies(id)
-    
-    lead_generated_at = Column(DateTime(timezone=True), server_default=func.now()) # TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-    closed_at = Column(DateTime(timezone=True), nullable=True) # TIMESTAMP WITH TIME ZONE (nullable)
-    
-    win_reason = Column(Text, nullable=True) # TEXT (nullable)
-    loss_reason = Column(Text, nullable=True) # TEXT (nullable)
-    cancellation_reason = Column(Text, nullable=True) # TEXT (nullable)
 
-    # Standard timestamps for created_at and updated_at
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+
+    lead_generated_at = Column(DateTime(timezone=True), server_default=func.now())
+    closed_at = Column(DateTime(timezone=True), nullable=True)
+
+    win_reason = Column(Text, nullable=True)
+    loss_reason = Column(Text, nullable=True)
+    cancellation_reason = Column(Text, nullable=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 

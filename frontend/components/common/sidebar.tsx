@@ -40,7 +40,7 @@ const Sidebar: React.FC = () => {
     label: "分析 (Analytics)",
     sublinks: [
       { href: "/analytics/overall_analytics/monthly_churn", label: "月次解約率" },
-      // Add more analytics links here later
+      { href: "/analytics/deal-outcomes", label: "取引成果分析" },
     ],
   };
 
@@ -79,6 +79,7 @@ const Sidebar: React.FC = () => {
           )}
         </li>
 
+        {/* Analytics Dropdown */}
         <li className="relative">
           <button
             onClick={() => setAnalyticsOpen(!analyticsOpen)}
@@ -99,6 +100,11 @@ const Sidebar: React.FC = () => {
               ))}
             </ul>
           )}
+        </li>
+        <li>
+          <Link href="/analytics/user/1" className="block py-2 px-3 rounded-md hover:bg-gray-700">
+            ユーザーパフォーマンス
+          </Link>
         </li>
       </ul>
     </nav>

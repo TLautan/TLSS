@@ -1,5 +1,8 @@
+# backend/app/crud/crud_company.py
+
 from sqlalchemy.orm import Session
-from app import models, schemas
+from app import models
+from app.schemas import company as company_schema
 
 def get_company(db: Session, company_id: int):
     """
@@ -19,7 +22,7 @@ def get_companies(db: Session, skip: int = 0, limit: int = 100):
     """
     return db.query(models.company.Company).offset(skip).limit(limit).all()
 
-def create_company(db: Session, company: schemas.company.CompanyCreate) -> models.company.Company:
+def create_company(db: Session, company: company_schema.CompanyCreate) -> models.company.Company:
     """
     Create a new company record in the database.
     """
@@ -29,7 +32,7 @@ def create_company(db: Session, company: schemas.company.CompanyCreate) -> model
     db.refresh(db_company)
     return db_company
 
-def update_company(db: Session, db_company: models.company.Company, company_update: schemas.company.CompanyUpdate) -> models.company.Company:
+def update_company(db: Session, db_company: models.company.Company, company_update: company_schema.CompanyUpdate) -> models.company.Company:
     """
     Update an existing company record.
     """
@@ -51,4 +54,3 @@ def delete_company(db: Session, company_id: int):
         db.delete(db_company)
         db.commit()
     return db_company
-

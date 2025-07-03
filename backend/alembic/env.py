@@ -1,15 +1,13 @@
 import sys
 import os
-# Put these imports at the very top as per standard practice
+sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
 
-sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
-
-from app.database import Base 
+from app.database import Base
 from app.models.activity import Activity
 from app.models.company import Company
 from app.models.deal import Deal
@@ -18,15 +16,18 @@ from app.models.agency import Agency
 
 config = context.config
 
-config.set_main_option("sqlalchemy.url", os.environ.get("DATABASE_URL", "postgresql://user:pass@localhost/db"))
-
-target_metadata = Base.metadata
-
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+target_metadata = Base.metadata
+
+config.set_main_option("sqlalchemy.url", os.environ.get("DATABASE_URL", "postgresql://user:pass@localhost/db"))
+
 
 def run_migrations_offline() -> None:
+    """Run migrations in 'offline' mode.
+    ...
+    """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -40,9 +41,12 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
+    """Run migrations in 'online' mode.
+    ...
+    """
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",  # <-- Only one occurrence of these args
+        prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 

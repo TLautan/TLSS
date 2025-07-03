@@ -1,14 +1,10 @@
 # backend/app/routers/deals.py
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app import models, schemas
-from app.database import SessionLocal, engine
 from typing import List
-
-# This will create the database table if it doesn't exist
-models.deal.Base.metadata.create_all(bind=engine)
-
-router = APIRouter()
+from app import models, schemas
+from app.crud import crud_deal, crud_user, crud_company # Assuming you have these
+from app.database import SessionLocal
 
 # Dependency to get a database session
 def get_db():
@@ -18,18 +14,37 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/deals/", response_model=schemas.deal.Deal, tags=["Deals"])
-def create_deal(deal: schemas.deal.DealCreate, db: Session = Depends(get_db)):
-    # Create a new SQLAlchemy model instance from the request data
-    db_deal = models.deal.Deal(title=deal.title, value=deal.value)
+router = APIRouter(
+    prefix="/deals",
+    tags=["Deals"]
+)
+
+# This endpoint now accepts the full DealCreate schema
+@router.post("/", response_model=schemas.deal.Deal, status_code=201)
+def create_new_deal(deal: schemas.deal.DealCreate, db: Session = Depends(get_db)):
+    """
+    Create a new deal.
+    """
+    # Optional: Add checks here to ensure the user_id and company_id exist
+    # For example:
+    # user = crud_user.get_user(db, user_id=deal.user_id)
+    # if not user:
+    #     raise HTTPException(status_code=404, detail="User not found")
+
+    # Create a new SQLAlchemy model instance using all the data
+    db_deal = models.deal.Deal(
+        title=deal.title,
+        value=deal.value,
+        type=deal.type,
+        user_id=deal.user_id,
+        company_id=deal.company_id
+        # Status will use the default 'in_progress'
+    )
     
-    # Add the new record to the database session
     db.add(db_deal)
-    
-    # Commit the transaction to save it to the database
     db.commit()
-    
-    # Refresh the instance to get the new ID from the database
     db.refresh(db_deal)
     
     return db_deal
+
+# You can add GET/PUT/DELETE endpoints for deals here later

@@ -1,8 +1,8 @@
-# app/main.py
+# backend/sapp/main.py
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import analytics, companies, users
+from app.routers import analytics, companies, users, agencies, activities
 
 # Create the main FastAPI app instance
 app = FastAPI(title="営業管理システム")
@@ -10,14 +10,13 @@ app = FastAPI(title="営業管理システム")
 # Add CORS Middleware (as before)
 origins = [
     "http://localhost",
-    "http://localhost:3000",
     "http://127.0.0.1",
+    "http://192.168.1.115",
+    "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://localhost:8080",
-    "http://127.0.0.1:8080",
-    "http://192.168.1.10",
-    "http://192.168.1.10:3000",
+    "http://192.168.1.115:3000",
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -29,6 +28,8 @@ app.add_middleware(
 app.include_router(analytics.router, prefix="/api")
 app.include_router(companies.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
+app.include_router(agencies.router, prefix="/api")
+app.include_router(activities.router, prefix="/api")
 
 @app.get("/")
 def read_root():
