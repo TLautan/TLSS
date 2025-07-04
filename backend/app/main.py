@@ -10,10 +10,8 @@ app = FastAPI(title="営業管理システム")
 # Add CORS Middleware (as before)
 origins = [
     "http://localhost",
-    "http://127.0.0.1",
     "http://192.168.1.115",
     "http://localhost:3000",
-    "http://127.0.0.1:3000",
     "http://192.168.1.115:3000",
 ]
 

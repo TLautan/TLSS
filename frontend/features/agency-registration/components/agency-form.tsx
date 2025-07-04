@@ -1,5 +1,4 @@
 // frontend/features/agency-registration/components/agency-form.tsx
-
 "use client";
 
 import { useState } from 'react';
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { createAgency } from '@/lib/api';
 
 export default function AgencyForm() {
   const [formData, setFormData] = useState({
@@ -41,8 +41,9 @@ export default function AgencyForm() {
     }
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/agencies/', formData);
-      setMessage(`Success! Agency "${response.data.agency_name}" has been registered.`);
+      const response = await createAgency(formData);
+
+      setMessage(`Success! Agency "${response.agency_name}" has been registered.`);
       // Reset form
       setFormData({
         agency_name: '', agency_kana: '', contact_person: '',

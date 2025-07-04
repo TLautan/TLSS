@@ -30,6 +30,7 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app
+      - ./frontend:/features
       - /app/node_modules
     command: npm run dev
     depends_on:

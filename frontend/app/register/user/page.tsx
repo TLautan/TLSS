@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { createUser } from '@/lib/api';
 
 export default function RegisterUserPage() {
   // State for each form field
@@ -28,14 +29,13 @@ export default function RegisterUserPage() {
 
     // Client-side validation
     if (!name.trim() || !email.trim() || !password.trim()) {
-      setError('Name, Email, and Password are required fields.');
+      setError('名前、メール、とパスワードを入力してください。');
       setIsLoading(false);
       return;
     }
 
     try {
-      // The payload must match the 'UserCreate' Pydantic schema
-      const response = await axios.post('http://127.0.0.1:8000/api/users/', {
+      const response = await createUser({
         name: name,
         name_kana: nameKana,
         email: email,
@@ -43,7 +43,7 @@ export default function RegisterUserPage() {
       });
 
       // Handle success
-      setMessage(`Success! User "${response.data.name}" has been registered.`);
+      setMessage(`成功! ユーザー "${response.name}" 登録完了しました`);
       // Clear the form fields
       setName('');
       setNameKana('');

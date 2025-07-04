@@ -1,5 +1,4 @@
 // frontend/ features/activity-registration/components/activity-form.tsx
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -8,15 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getDeals } from '@/lib/api';
+import { getDeals, createActivityForDeal } from '@/lib/api';
 
-// Define the types for the data we'll fetch
 interface Deal {
   id: number;
   title: string;
 }
 
-const ACTIVITY_TYPES = ["電話", "メール", "会議"]; // Corresponds to your ActivityType Enum
+const ACTIVITY_TYPES = ["電話", "メール", "会議"];
 
 export default function ActivityForm() {
   // State for the dropdown list
@@ -49,7 +47,7 @@ export default function ActivityForm() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!selectedDealId || !activityType) {
-      setError('Deal and Activity Type are required.');
+      setError('取引と活動タイプが必要です。');
       return;
     }
     setIsLoading(true);
@@ -57,13 +55,13 @@ export default function ActivityForm() {
     setError('');
 
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/api/deals/${selectedDealId}/activities/`, {
+      const response = await createActivityForDeal(selectedDealId, {
         deal_id: parseInt(selectedDealId),
         type: activityType,
         notes: notes,
       });
 
-      setMessage(`Success! Activity logged for deal ID ${response.data.deal_id}.`);
+      setMessage(`成功! 取引ID${response.deal_id}のアクティビティが記録されました。`);
       // Reset form
       setSelectedDealId('');
       setActivityType('');

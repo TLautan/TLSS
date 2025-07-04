@@ -1,3 +1,4 @@
+// frontend/lib/api.ts
 import axios from 'axios';
 
 // It dynamically uses the URL from the environment variable.
@@ -40,6 +41,18 @@ export const getMonthlyCancellationRate = async () => {
 };
 
 // --- Users ---
+interface UserData {
+  name: string;
+  name_kana?: string;
+  email: string;
+  password?: string;
+}
+
+export const createUser = async (userData: UserData) => {
+  const response = await apiClient.post('/users/', userData);
+  return response.data;
+};
+
 export const getUsers = async () => {
   const response = await apiClient.get('/users/');
   return response.data;
@@ -63,14 +76,53 @@ export const createCompany = async (companyData: CompanyData) => {
 
 
 // --- Deals ---
+interface DealData {
+  title: string;
+  value: number;
+  type: string;
+  user_id: number;
+  company_id: number;
+}
+
+export const createDeal = async (dealData: DealData) => {
+  const response = await apiClient.post('/deals/', dealData);
+  return response.data;
+};
+
 export const getDeals = async () => {
   const response = await apiClient.get('/deals/');
   return response.data;
 };
 
 // --- Activities ---
+interface ActivityData {
+  deal_id: number;
+  type: string;
+  notes?: string;
+}
+
+export const createActivityForDeal = async (dealId: string, activityData: ActivityData) => {
+  const response = await apiClient.post(`/deals/${dealId}/activities/`, activityData);
+  return response.data;
+};
+
 export const getActivitiesForDeal = async (dealId: string) => {
   const response = await apiClient.get(`/deals/${dealId}/activities/`);
+  return response.data;
+};
+
+// --- Agency ---
+interface AgencyData {
+  agency_name: string;
+  agency_kana?: string;
+  contact_person?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  notes?: string;
+}
+
+export const createAgency = async (agencyData: AgencyData) => {
+  const response = await apiClient.post('/agencies/', agencyData);
   return response.data;
 };
 

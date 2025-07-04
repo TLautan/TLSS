@@ -1,3 +1,4 @@
+// frontend/app/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -45,7 +46,7 @@ export default function DashboardPage() {
   }, []);
 
   if (loading) {
-    return <div className="flex items-center justify-center h-full"><p>Loading Dashboard...</p></div>;
+    return <div className="flex items-center justify-center h-full"><p>ロード中...</p></div>;
   }
   if (error) {
     return <div className="flex items-center justify-center h-full"><p className="text-red-500">{error}</p></div>;
@@ -68,7 +69,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Dashboard Overview</h1>
+      <h1 className="text-3xl font-bold mb-6">ダッシュボード概要</h1>
       
       {/* KPI Cards Grid - This is the single, correct grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">

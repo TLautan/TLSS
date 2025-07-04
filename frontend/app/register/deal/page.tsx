@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getUsers, getCompanies } from '@/lib/api'; 
+import { getUsers, getCompanies, createDeal } from '@/lib/api';
 
 // Define the types for the data we'll fetch
 interface User {
@@ -61,13 +61,13 @@ export default function RegisterDealPage() {
 
     // Validation
     if (!title || !value || !type || !selectedUserId || !selectedCompanyId) {
-      setError('All fields are required.');
+      setError('全フィールドを入力してください');
       setIsLoading(false);
       return;
     }
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/deals/', {
+      const response = await createDeal({
         title: title,
         value: parseFloat(value),
         type: type,
@@ -75,8 +75,7 @@ export default function RegisterDealPage() {
         company_id: parseInt(selectedCompanyId),
       });
 
-      setMessage(`Success! Deal "${response.data.title}" has been registered.`);
-      // Reset form
+      setMessage(`成功! 取引 "${response.title}" は登録できました。`);
       setTitle('');
       setValue('');
       setType('');
