@@ -1,6 +1,6 @@
 # backend/app/crud/crud_deal.py
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from app import models
 from app.schemas import deal as deal_schema
@@ -15,9 +15,16 @@ def get_deal(db: Session, deal_id: int) -> Optional[models.deal.Deal]:
 
 def get_deals(db: Session, skip: int = 0, limit: int = 100) -> List[models.deal.Deal]:
     """
-    Retrieve a list of all deals with pagination.
+    Retrieve a list of all deals with pagination, and eagerly load
+    the related user and company data to prevent extra queries.
     """
-    return db.query(models.deal.Deal).offset(skip).limit(limit).all()
+    return (
+        db.query(models.deal.Deal)
+        .options(joinedload(models.deal.Deal.user), joinedload(models.deal.Deal.company))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 def get_deals_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> List[models.deal.Deal]:
     """

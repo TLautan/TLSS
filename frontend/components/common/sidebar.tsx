@@ -22,7 +22,11 @@ const Sidebar: React.FC = () => {
   const pathname = usePathname();
 
   const mainLinks: NavLink[] = [
-    { href: "/", label: "Dashboard" },
+    { href: "/", label: "ダッシュボード" },
+    { href: "/users", label: "担当者一覧 (Users)" }, 
+    { href: "/companies", label: "会社一覧 (Companies)" },
+    { href: "/deals", label: "取引一覧 (Deals)" },
+    { href: "/agencies", label: "代理店一覧 (Agency)" },
   ];
 
   const registrationLinks: DropdownLink = {
@@ -48,6 +52,7 @@ const Sidebar: React.FC = () => {
     <nav className="w-64 h-screen bg-gray-800 text-white p-5 flex flex-col flex-shrink-0">
       <h3 className="text-xl font-bold text-cyan-400 mb-6">営業管理システム</h3>
       <ul className="flex flex-col space-y-2">
+        {/* This will now render Dashboard and the new Users link */}
         {mainLinks.map((link) => (
           <li key={link.href}>
             <Link href={link.href} className={`block py-2 px-3 rounded-md transition-colors ${pathname === link.href ? 'bg-gray-600' : 'hover:bg-gray-700'}`}>
@@ -100,11 +105,6 @@ const Sidebar: React.FC = () => {
               ))}
             </ul>
           )}
-        </li>
-        <li>
-          <Link href="/analytics/user/1" className="block py-2 px-3 rounded-md hover:bg-gray-700">
-            個人パフォーマンス (User 1)
-          </Link>
         </li>
       </ul>
     </nav>

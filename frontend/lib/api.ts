@@ -126,6 +126,11 @@ export const createAgency = async (agencyData: AgencyData) => {
   return response.data;
 };
 
+export const getAgencies = async () => {
+  const response = await apiClient.get('/agencies/');
+  return response.data;
+};
+
 // Add other functions for POST, PUT, DELETE as needed
 // For example:
 // export const createCompany = (companyData) => {

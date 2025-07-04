@@ -4,6 +4,8 @@ from typing import Optional
 from datetime import datetime
 from typing import Optional
 from app.models.deal import DealStatus, DealType
+from .user import User as UserSchema
+from .company import Company as CompanySchema
 
 # --- Base Schema ---
 class DealBase(BaseModel):
@@ -50,6 +52,8 @@ class Deal(DealBase):
     lead_generated_at: datetime
     created_at: datetime
     updated_at: datetime
-
+    user: UserSchema
+    company: CompanySchema
+    
     class Config:
         from_attributes = True

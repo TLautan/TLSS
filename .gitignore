@@ -17,3 +17,4 @@ npm-debug.log
 # Secrets File
 .env
 *.env.local
+.txt

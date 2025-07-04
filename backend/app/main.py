@@ -4,10 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import analytics, companies, users, agencies, activities, deals
 
-# Create the main FastAPI app instance
 app = FastAPI(title="営業管理システム")
 
-# Add CORS Middleware (as before)
 origins = [
     "http://localhost",
     "http://192.168.1.115",
