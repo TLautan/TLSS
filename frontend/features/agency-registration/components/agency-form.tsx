@@ -43,7 +43,7 @@ export default function AgencyForm() {
     try {
       const response = await createAgency(formData);
 
-      setMessage(`Success! Agency "${response.agency_name}" has been registered.`);
+      setMessage(`成功! 代理店 "${response.agency_name}" 登録完了しました`);
       // Reset form
       setFormData({
         agency_name: '', agency_kana: '', contact_person: '',
@@ -65,28 +65,28 @@ export default function AgencyForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="agency_name">代理店名 (Agency Name)</Label>
-          <Input id="agency_name" value={formData.agency_name} onChange={handleChange} />
+          <Input id="agency_name" value={formData.agency_name} onChange={handleChange} placeholder="例：株式会社パートナー" />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="agency_kana">代理店名（カナ） (Agency Kana)</Label>
-          <Input id="agency_kana" value={formData.agency_kana} onChange={handleChange} />
+          <Label htmlFor="agency_kana">代理店名（カナ）</Label>
+          <Input id="agency_kana" value={formData.agency_kana} onChange={handleChange} placeholder="例：カブシキガイシャパートナー" />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="contact_person">担当者名 (Contact Person)</Label>
+          <Label htmlFor="contact_person">担当者名</Label>
           <Input id="contact_person" value={formData.contact_person} onChange={handleChange} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="contact_email">連絡先メール (Contact Email)</Label>
+          <Label htmlFor="contact_email">連絡先メール</Label>
           <Input id="contact_email" type="email" value={formData.contact_email} onChange={handleChange} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="contact_phone">連絡先電話番号 (Contact Phone)</Label>
+          <Label htmlFor="contact_phone">連絡先電話番号</Label>
           <Input id="contact_phone" type="tel" value={formData.contact_phone} onChange={handleChange} />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="notes">備考 (Notes)</Label>
-        <Textarea id="notes" value={formData.notes} onChange={handleChange} />
+        <Textarea id="notes" value={formData.notes} onChange={handleChange} placeholder="代理店の詳細情報..." />
       </div>
 
       {error && <p className="text-sm font-medium text-destructive">{error}</p>}
