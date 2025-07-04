@@ -17,4 +17,8 @@ npm-debug.log
 # Secrets File
 .env
 *.env.local
+<<<<<<< HEAD
 plan.txt
+=======
+.txt
+>>>>>>> origin/main
