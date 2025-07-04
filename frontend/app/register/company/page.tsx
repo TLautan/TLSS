@@ -1,12 +1,12 @@
-// frontend/app/register/company/page.tsx
 "use client";
 
 import { useState } from 'react';
-import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { createCompany } from '@/lib/api';
+import axios from 'axios';
 
 export default function RegisterCompanyPage() {
   const [companyName, setCompanyName] = useState('');
@@ -28,19 +28,17 @@ export default function RegisterCompanyPage() {
     }
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/companies/', {
+      const response = await createCompany({
         company_name: companyName,
         industry: industry,
       });
 
-      setMessage(`Success! Company "${response.data.company_name}" has been registered.`);
+      setMessage(`Success! Company "${response.company_name}" has been registered.`);
       setCompanyName('');
       setIndustry('');
 
-    } catch (apiError: unknown) { // FIX #1: Use 'unknown' instead of 'any'
+    } catch (apiError: unknown) {
       console.error("Error submitting company data:", apiError);
-      
-      // FIX #2: Add a type guard to safely check the error structure
       if (axios.isAxiosError(apiError) && apiError.response?.data?.detail) {
         setError(`Error: ${apiError.response.data.detail}`);
       } else {

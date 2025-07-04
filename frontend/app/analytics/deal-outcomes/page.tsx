@@ -3,9 +3,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getDealOutcomeBreakdowns } from '@/lib/api';
 
 // Define the type for the data we expect from the API
 interface OutcomeData {
@@ -26,9 +26,8 @@ export default function DealOutcomesPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // We will centralize this in lib/api.ts later
-        const response = await axios.get('http://127.0.0.1:8000/api/analytics/deal-outcomes');
-        setData(response.data);
+        const result = await getDealOutcomeBreakdowns();
+        setData(result);
       } catch (err) {
         setError('Failed to load analytics data.');
         console.error(err);

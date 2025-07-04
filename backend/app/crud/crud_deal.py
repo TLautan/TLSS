@@ -1,3 +1,5 @@
+# backend/app/crud/crud_deal.py
+
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app import models
@@ -26,7 +28,6 @@ def get_deals_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100
 
 # --- CREATE Operation ---
 
-# FIX: Use the 'deal_schema' alias for the type hint
 def create_deal(db: Session, deal: deal_schema.DealCreate) -> models.deal.Deal:
     """
     Create a new deal record in the database.
@@ -46,7 +47,6 @@ def create_deal(db: Session, deal: deal_schema.DealCreate) -> models.deal.Deal:
 
 # --- UPDATE Operation ---
 
-# FIX: Use the 'deal_schema' alias for the type hint
 def update_deal(db: Session, db_deal: models.deal.Deal, deal_update: deal_schema.DealUpdate) -> models.deal.Deal:
     """
     Update an existing deal record.

@@ -2,41 +2,40 @@
 "use client";
 
 import { useState } from 'react';
-import axios from 'axios';
+import { postMonthlyChurnData } from '@/lib/api'; // Import the new API function
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-// Define the type for a single row of data in our form
 interface MonthEntry {
   month: number;
-  start_customers: string; // We use string for form inputs to handle empty state
+  start_customers: string;
   churned_customers: string;
 }
 
 export default function ChurnInputForm() {
-  // Create state to hold the data for all 12 months, following your fiscal year (July-June)
   const initialMonths = Array.from({ length: 12 }, (_, i) => {
-    const monthNum = (i + 6) % 12 + 1; // Generates 7, 8, ..., 12, 1, 2, ..., 6
+    const monthNum = (i + 6) % 12 + 1;
     return { month: monthNum, start_customers: '', churned_customers: '' };
   });
 
   const [monthlyData, setMonthlyData] = useState<MonthEntry[]>(initialMonths);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
-  // This function updates the state when a user types in an input field
   const handleInputChange = (index: number, field: 'start_customers' | 'churned_customers', value: string) => {
     const updatedData = [...monthlyData];
-    // Allow only numbers to be typed
     updatedData[index][field] = value.replace(/[^0-9]/g, '');
     setMonthlyData(updatedData);
   };
 
-  // This function runs when the "Calculate" button is clicked
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
     setMessage('');
+    setError('');
 
-    // 1. Filter out any rows where the user didn't enter both values
     const dataToSend = monthlyData
       .filter(row => row.start_customers !== '' && row.churned_customers !== '')
       .map(row => ({
@@ -46,78 +45,73 @@ export default function ChurnInputForm() {
       }));
     
     if (dataToSend.length === 0) {
-      setMessage("Error: Please input data for at least one month.");
+      setError("Error: Please input data for at least one month.");
       setIsLoading(false);
       return;
     }
 
     try {
-      // 2. Send the cleaned-up data to your FastAPI backend
-      const response = await axios.post('http://127.0.0.1:8000/api/analytics/monthly-churn', {
+      // Use the new, centralized API function
+      const response = await postMonthlyChurnData({
         monthly_data: dataToSend
       });
 
-      // 3. Display the success response from the server
-      setMessage(`Success! Server response: ${response.data.message}`);
+      setMessage(`Success! Server response: ${response.message}`);
       
-    } catch (error) {
-      console.error("Error submitting data:", error);
-      setMessage("Error: Failed to submit data to the server.");
+    } catch (err: unknown) {
+      console.error("Error submitting data:", err);
+      // Basic error handling, can be improved
+      setError("Error: Failed to submit data to the server.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-lg p-6 bg-white rounded-lg shadow-md">
+    <form onSubmit={handleSubmit} className="w-full max-w-lg p-6 bg-card text-card-foreground rounded-lg border shadow-md">
       <h2 className="text-2xl font-bold mb-4">月次データ入力 (Monthly Data Input)</h2>
-      <p className="text-sm text-gray-600 mb-4">
+      <p className="text-sm text-muted-foreground mb-4">
         実績のある月のデータを入力してください。(データがない月は空欄のままにしてください)
       </p>
       
-      {/* Table Header */}
       <div className="grid grid-cols-3 gap-4 font-bold mb-2 pb-2 border-b">
         <div className="text-center">月 (Month)</div>
         <div>月初顧客数 (Start Customers)</div>
         <div>月間解約者数 (Churned)</div>
       </div>
 
-      {/* Table Rows for Data Input */}
       <div className="space-y-2">
         {monthlyData.map((data, index) => (
           <div key={data.month} className="grid grid-cols-3 gap-4 items-center">
-            <div className="text-center font-medium">{data.month}月</div>
-            <input
+            <Label className="text-center font-medium">{data.month}月</Label>
+            <Input
               type="text"
               value={data.start_customers}
               onChange={(e) => handleInputChange(index, 'start_customers', e.target.value)}
-              className="w-full p-2 border rounded"
               placeholder="e.g., 1000"
             />
-            <input
+            <Input
               type="text"
               value={data.churned_customers}
               onChange={(e) => handleInputChange(index, 'churned_customers', e.target.value)}
-              className="w-full p-2 border rounded"
               placeholder="e.g., 10"
             />
           </div>
         ))}
       </div>
 
-      {/* Submit Button */}
       <div className="mt-6">
-        <button
+        <Button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400"
+          className="w-full"
         >
           {isLoading ? 'Submitting...' : '計算する (Calculate)'}
-        </button>
+        </Button>
       </div>
 
-      {/* Display a message after submission */}
-      {message && <div className="mt-4 p-3 rounded bg-gray-100 text-gray-700 text-center">{message}</div>}
+      {message && <div className="mt-4 p-3 rounded-md bg-secondary text-secondary-foreground text-center">{message}</div>}
+      {error && <div className="mt-4 p-3 rounded-md bg-destructive text-destructive-foreground text-center">{error}</div>}
     </form>
   );
 }

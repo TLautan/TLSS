@@ -16,13 +16,26 @@ export const getUserPerformance = async (userId: string) => {
   return response.data;
 };
 
-export const getMonthlyCancellationRate = async () => {
-  const response = await apiClient.get('/analytics/monthly-cancellation-rate');
+export const getDealOutcomeBreakdowns = async () => {
+  const response = await apiClient.get('/analytics/outcome-breakdowns');
   return response.data;
 };
 
-export const getDealOutcomeBreakdowns = async () => {
-  const response = await apiClient.get('/analytics/outcome-breakdowns');
+// --- Churn ---
+
+export const postMonthlyChurnData = async (data: {
+  monthly_data: {
+    month: number;
+    start_customers: number;
+    churned_customers: number;
+  }[];
+}) => {
+  const response = await apiClient.post('/analytics/monthly-churn', data);
+  return response.data;
+};
+
+export const getMonthlyCancellationRate = async () => {
+  const response = await apiClient.get('/analytics/monthly-cancellation-rate');
   return response.data;
 };
 
@@ -37,6 +50,17 @@ export const getCompanies = async () => {
   const response = await apiClient.get('/companies/');
   return response.data;
 };
+
+interface CompanyData {
+  company_name: string;
+  industry: string;
+}
+
+export const createCompany = async (companyData: CompanyData) => {
+  const response = await apiClient.post('/companies/', companyData);
+  return response.data;
+};
+
 
 // --- Deals ---
 export const getDeals = async () => {

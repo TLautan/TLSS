@@ -1,10 +1,9 @@
 // frontend/features/analytics/components/deal-outcomes-view.tsx
-
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
 import { getDealOutcomeBreakdowns } from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bar, Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -65,7 +64,7 @@ export default function DealOutcomesView() {
       } else if (row.status === '失注') { // 'lost'
         industryData.lost += row.count;
       }
-      // We only care about won/lost for success/loss rate
+      // We only care about won/lost for success/loss rate calculation
       if (row.status === '受注' || row.status === '失注') {
         industryData.total += row.count;
       }
@@ -77,8 +76,8 @@ export default function DealOutcomesView() {
 
     industryMap.forEach((counts, industry) => {
       labels.push(industry);
-      successRates.push(counts.total > 0 ? (counts.won / counts.total) * 100 : 0);
-      lossRates.push(counts.total > 0 ? (counts.lost / counts.total) * 100 : 0);
+      successRates.push(counts.total > 0 ? parseFloat(((counts.won / counts.total) * 100).toFixed(2)) : 0);
+      lossRates.push(counts.total > 0 ? parseFloat(((counts.lost / counts.total) * 100).toFixed(2)) : 0);
     });
 
     return { labels, successRates, lossRates };
@@ -109,7 +108,7 @@ export default function DealOutcomesView() {
     datasets: [{
       label: 'Success Rate (%)',
       data: ratesByIndustry.successRates,
-      backgroundColor: 'rgba(75, 192, 192, 0.6)',
+      backgroundColor: 'rgba(75, 192, 192, 0.7)',
     }],
   };
   
@@ -118,22 +117,24 @@ export default function DealOutcomesView() {
     datasets: [{
       label: 'Loss Rate (%)',
       data: ratesByIndustry.lossRates,
-      backgroundColor: 'rgba(255, 99, 132, 0.6)',
+      backgroundColor: 'rgba(255, 99, 132, 0.7)',
     }],
   };
 
   const lossReasonChartData = {
     labels: topLossReasons.labels,
     datasets: [{
-      label: 'Deal Count',
+      label: 'Number of Lost Deals',
       data: topLossReasons.counts,
       backgroundColor: [
-        'rgba(255, 99, 132, 0.6)',
-        'rgba(54, 162, 235, 0.6)',
-        'rgba(255, 206, 86, 0.6)',
-        'rgba(75, 192, 192, 0.6)',
-        'rgba(153, 102, 255, 0.6)',
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(255, 206, 86, 0.7)',
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(153, 102, 255, 0.7)',
       ],
+      borderColor: 'rgba(255, 255, 255, 0.7)',
+      borderWidth: 1,
     }],
   };
 
@@ -146,8 +147,8 @@ export default function DealOutcomesView() {
         <CardHeader>
           <CardTitle>Success Rate by Industry</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px]">
-          <Bar options={{ responsive: true, maintainAspectRatio: false }} data={successRateChartData} />
+        <CardContent className="h-[350px]">
+          <Bar options={{ indexAxis: 'y', responsive: true, maintainAspectRatio: false }} data={successRateChartData} />
         </CardContent>
       </Card>
 
@@ -155,8 +156,8 @@ export default function DealOutcomesView() {
         <CardHeader>
           <CardTitle>Loss Rate by Industry</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px]">
-          <Bar options={{ responsive: true, maintainAspectRatio: false }} data={lossRateChartData} />
+        <CardContent className="h-[350px]">
+          <Bar options={{ indexAxis: 'y', responsive: true, maintainAspectRatio: false }} data={lossRateChartData} />
         </CardContent>
       </Card>
 
@@ -164,8 +165,10 @@ export default function DealOutcomesView() {
         <CardHeader>
           <CardTitle>Top 5 Loss Reasons</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px] flex justify-center">
-          <Pie data={lossReasonChartData} />
+        <CardContent className="h-[350px] flex justify-center items-center">
+          <div className="w-full h-full max-w-sm">
+             <Pie options={{ responsive: true, maintainAspectRatio: true }} data={lossReasonChartData} />
+          </div>
         </CardContent>
       </Card>
     </div>

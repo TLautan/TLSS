@@ -9,3 +9,4 @@ sqlalchemy
 alembic
 passlib[bcrypt]
 pydantic[email]
+httpx

@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
@@ -24,7 +23,6 @@ interface PerformanceData {
   activity_summary: { [key: string]: number };
 }
 
-// This component receives a simple userId string as a prop
 export default function UserPerformanceClient({ userId }: { userId: string }) {
   const [performanceData, setPerformanceData] = useState<PerformanceData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,7 +70,7 @@ export default function UserPerformanceClient({ userId }: { userId: string }) {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold mb-2">{performanceData.user_name} - Performance Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-2">{performanceData.user_name} - 個人パフォーマンス</h1>
         <p className="text-muted-foreground">Individual performance metrics for this sales representative.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
