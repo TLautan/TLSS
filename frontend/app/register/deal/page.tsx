@@ -31,11 +31,20 @@ export default function RegisterDealPage() {
   const [type, setType] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedCompanyId, setSelectedCompanyId] = useState('');
-  
+
+  // NEW: State variables for the new fields
+  const [leadSource, setLeadSource] = useState('');
+  const [productName, setProductName] = useState('');
+  const [forecastAccuracy, setForecastAccuracy] = useState('');
+
   // State for loading and feedback
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+
+  const LEAD_SOURCES = ["Web Inquiry", "Referral", "Exhibition", "Cold Call"];
+  const PRODUCTS = ["Standard Plan", "Pro Plan", "Enterprise Solution"];
+  const FORECAST_ACCURACY = ["高", "中", "低"]; // "High", "Medium", "Low"
 
   // Fetch users and companies when the component mounts
   useEffect(() => {
@@ -51,7 +60,7 @@ export default function RegisterDealPage() {
       }
     };
     fetchData();
-  }, []);
+  }, []); // Empty dependency array means this runs once on mount
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -59,28 +68,38 @@ export default function RegisterDealPage() {
     setMessage('');
     setError('');
 
-    // Validation
-    if (!title || !value || !type || !selectedUserId || !selectedCompanyId) {
-      setError('全フィールドを入力してください');
+    // Validation - Now 'leadSource', 'productName', 'forecastAccuracy' are actual state variables
+    if (!title || !value || !type || !selectedUserId || !selectedCompanyId || !leadSource || !productName || !forecastAccuracy) {
+      setError('All fields are required.');
       setIsLoading(false);
       return;
     }
 
     try {
+      // Pass all form data to the createDeal API function
       const response = await createDeal({
         title: title,
         value: parseFloat(value),
         type: type,
         user_id: parseInt(selectedUserId),
         company_id: parseInt(selectedCompanyId),
+        lead_source: leadSource, // Now correctly bound
+        product_name: productName, // Now correctly bound
+        forecast_accuracy: forecastAccuracy, // Now correctly bound
       });
 
+      // Show success message
       setMessage(`成功! 取引 "${response.title}" は登録できました。`);
+
+      // Reset form fields after successful submission
       setTitle('');
       setValue('');
       setType('');
       setSelectedUserId('');
       setSelectedCompanyId('');
+      setLeadSource(''); // NEW: Resetting leadSource
+      setProductName(''); // NEW: Resetting productName
+      setForecastAccuracy(''); // NEW: Resetting forecastAccuracy
 
     } catch (apiError: unknown) {
       console.error("Error submitting deal:", apiError);
@@ -97,7 +116,7 @@ export default function RegisterDealPage() {
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">取引登録 (Register Deal)</h1>
-      
+
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>新規取引情報 (New Deal Information)</CardTitle>
@@ -154,6 +173,46 @@ export default function RegisterDealPage() {
               </Select>
             </div>
 
+            {/* Lead Source Select - Now correctly bound */}
+            <div className="space-y-2">
+              <Label htmlFor="leadSource">リードソース (Lead Source)</Label>
+              <Select onValueChange={setLeadSource} value={leadSource}>
+                <SelectTrigger id="leadSource"><SelectValue placeholder="ソースを選択..." /></SelectTrigger>
+                <SelectContent>
+                  {LEAD_SOURCES.map(source => (
+                    <SelectItem key={source} value={source}>{source}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Product Name Select - Now correctly bound */}
+            <div className="space-y-2">
+              <Label htmlFor="productName">商材名 (Product Name)</Label>
+              <Select onValueChange={setProductName} value={productName}>
+                <SelectTrigger id="productName"><SelectValue placeholder="商材を選択..." /></SelectTrigger>
+                <SelectContent>
+                  {PRODUCTS.map(product => (
+                    <SelectItem key={product} value={product}>{product}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Forecast Accuracy Select - Now correctly bound */}
+            <div className="space-y-2">
+              <Label htmlFor="forecastAccuracy">ヨミ精度 (Forecast Accuracy)</Label>
+              <Select onValueChange={setForecastAccuracy} value={forecastAccuracy}>
+                <SelectTrigger id="forecastAccuracy"><SelectValue placeholder="精度を選択..." /></SelectTrigger>
+                <SelectContent>
+                  {FORECAST_ACCURACY.map(accuracy => (
+                    <SelectItem key={accuracy} value={accuracy}>{accuracy}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Feedback messages */}
             {error && <p className="text-sm font-medium text-destructive">{error}</p>}
             {message && <p className="text-sm font-medium text-green-600">{message}</p>}
 

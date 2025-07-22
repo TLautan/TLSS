@@ -21,7 +21,9 @@ def get_deal_outcome_breakdowns(db: Session) -> List[Dict]:
 
     query_result = (
         db.query(
-            Deal.status, Company.industry, reason_expression,
+            Deal.status,
+            Company.industry,
+            reason_expression,
             func.count(Deal.id).label('count')
         )
         .join(Company, Deal.company_id == Company.id)
@@ -33,8 +35,10 @@ def get_deal_outcome_breakdowns(db: Session) -> List[Dict]:
     
     return [
         {
-            "status": row.status, "industry": row.industry or "Unknown",
-            "reason": row.reason or "No Reason Given", "count": row.count,
+            "status": row.status,
+            "industry": row.industry or "Unknown",
+            "reason": row.reason or "No Reason Given",
+            "count": row.count,
         }
         for row in query_result
     ]
@@ -43,7 +47,7 @@ def get_overall_kpis(db: Session) -> Dict[str, Any]:
     """
     Calculates a set of overall Key Performance Indicators (KPIs) for the dashboard.
     """
-    closed_statuses = [DealStatus.won.value, DealStatus.lost.value]
+    closed_statuses = [DealStatus.won.value, DealStatus.lost.value]  
     closed_deals_query = db.query(Deal).filter(Deal.status.in_(closed_statuses))
     
     total_direct_deals = closed_deals_query.filter(Deal.type == DealType.direct.value).count()
@@ -112,7 +116,7 @@ def get_user_performance_metrics(db: Session, user_id: int) -> Dict[str, Any]:
     )
 
     won_map = { (r.year, r.month): r.won_count for r in won_deals }
-
+    
     monthly_metrics = []
     for row in total_closed_deals:
         year, month, total_count = row.year, row.month, row.total_count
@@ -125,23 +129,20 @@ def get_user_performance_metrics(db: Session, user_id: int) -> Dict[str, Any]:
         })
 
     avg_time_to_win_result = db.query(
-        func.avg(
-            (cast(Deal.closed_at, Date) - cast(Deal.lead_generated_at, Date))
-        )
+        func.avg(func.julianday(Deal.closed_at) - func.julianday(Deal.lead_generated_at))
     ).filter(
         Deal.user_id == user_id,
         Deal.status == DealStatus.won.value,
-        Deal.closed_at.isnot(None),
-        Deal.lead_generated_at.isnot(None)
+        Deal.closed_at.isnot(None)
     ).scalar()
-
-    avg_days_to_win = round(float(avg_time_to_win_result), 1) if avg_time_to_win_result is not None else 0
+    
+    avg_days_to_win = round(avg_time_to_win_result, 1) if avg_time_to_win_result is not None else 0
 
     activity_counts = db.query(
         Activity.type,
         func.count(Activity.id).label('count')
     ).join(Deal).filter(Deal.user_id == user_id).group_by(Activity.type).all()
-
+    
     activity_summary = {row.type.value: row.count for row in activity_counts}
 
     performance_data = {
@@ -192,7 +193,7 @@ def calculate_monthly_cancellation_rate(db: Session) -> List[Dict[str, Any]]:
 
 """
 For Later Use
-"""
+
 async def get_combined_data(db: Session):
     # 1. Get personnel data from your own PostgreSQL database
     users = crud_user.get_users(db)
@@ -203,4 +204,4 @@ async def get_combined_data(db: Session):
     # 3. Combine the data and perform calculations...
     # ... your logic here ...
 
-    return {"users": users, "deals_from_crm": crm_deals}
+    return {"users": users, "deals_from_crm": crm_deals}"""

@@ -1,35 +1,26 @@
 # backend/app/models/activity.py
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Enum as SQLAlchemyEnum
+from sqlalchemy import Column, Integer, DateTime, ForeignKey, Text
+from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
-import enum
-from datetime import datetime, timezone
-
-# Python Enum for SQLAlchemy Enum Type
-class ActivityType(str, enum.Enum):
-    phone = "電話"   # Match SQL ENUM values
-    email = "メール"
-    meeting = "会議"
+from .enums import ActivityType # <-- IMPORT FROM enums.py
 
 class Activity(Base):
     __tablename__ = "activities"
 
     id = Column(Integer, primary_key=True, index=True)
-
-    deal_id = Column(Integer, ForeignKey("deals.id"), nullable=False) # deal_id INTEGER NOT NULL REFERENCES deals(id)
+    deal_id = Column(Integer, ForeignKey("deals.id"), nullable=False)
     
-    type = Column(SQLAlchemyEnum(ActivityType, name='activity_type', create_type=False), nullable=False) # type activity_type NOT NULL
+    # Use the imported enum, but tell SQLAlchemy to treat it as an external type
+    type = Column(ENUM(ActivityType, name='activity_type', create_type=False), nullable=False)
     
-    date = Column(DateTime(timezone=True), server_default=func.now()) # date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-    notes = Column(Text) # notes TEXT (nullable by default)
-
-    # Standard timestamps for created_at and updated_at
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False) # created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now(), nullable=False) # updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
-
-    deal = relationship("Deal") # Links to the Deal model
+    date = Column(DateTime(timezone=True), server_default=func.now())
+    notes = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now(), nullable=False)
+    deal = relationship("Deal")
 
     def __repr__(self):
         return f"<Activity(id={self.id}, type='{self.type.value}', date='{self.date}')>"

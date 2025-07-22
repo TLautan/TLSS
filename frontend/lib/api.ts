@@ -82,7 +82,13 @@ interface DealData {
   type: string;
   user_id: number;
   company_id: number;
+  lead_source: string;
+  product_name: string;
+  forecast_accuracy: string;
+  status?: string;
+  closed_at?: string | null;
 }
+
 
 export const createDeal = async (dealData: DealData) => {
   const response = await apiClient.post('/deals/', dealData);

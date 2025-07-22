@@ -3,13 +3,12 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 from typing import Optional
-from app.models.deal import DealStatus, DealType
+from app.models.deal import DealStatus, DealType, ForecastAccuracy
 from .user import User as UserSchema
 from .company import Company as CompanySchema
 
 # --- Base Schema ---
 class DealBase(BaseModel):
-    # These fields are required when creating a deal
     title: str = Field(..., description="Title of the deal")
     value: float = Field(..., description="Value of the deal")
     status: DealStatus = Field(default=DealStatus.in_progress, description="Status of the deal")
@@ -18,7 +17,9 @@ class DealBase(BaseModel):
     user_id: int = Field(..., description="ID of the user responsible for the deal")
     company_id: int = Field(..., description="ID of the associated company")
 
-    # Optional fields (can be None)
+    lead_source: Optional[str] = None
+    product_name: Optional[str] = None
+    forecast_accuracy: Optional[ForecastAccuracy] = None
     closed_at: Optional[datetime] = Field(None, description="Timestamp when the deal was closed")
     win_reason: Optional[str] = Field(None, description="Reason for winning the deal")
     loss_reason: Optional[str] = Field(None, description="Reason for losing the deal")
@@ -31,7 +32,6 @@ class DealBase(BaseModel):
         }
 
 # --- Schema for Creating a Deal ---
-# This is what the frontend will send.
 class DealCreate(DealBase):
     pass
 
@@ -43,9 +43,11 @@ class DealUpdate(BaseModel):
     type: Optional[DealType] = None
     user_id: Optional[int] = None
     company_id: Optional[int] = None
+    lead_source: Optional[str] = None
+    product_name: Optional[str] = None
+    forecast_accuracy: Optional[ForecastAccuracy] = None
 
 # --- Schema for Reading a Deal ---
-# This is what the API will return.
 class Deal(DealBase):
     id: int
     status: DealStatus

@@ -10,3 +10,4 @@ alembic
 passlib[bcrypt]
 pydantic[email]
 httpx
+Faker>=19.0.0

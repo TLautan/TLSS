@@ -39,13 +39,7 @@ def create_deal(db: Session, deal: deal_schema.DealCreate) -> models.deal.Deal:
     """
     Create a new deal record in the database.
     """
-    db_deal = models.deal.Deal(
-        title=deal.title,
-        value=deal.value,
-        type=deal.type,
-        user_id=deal.user_id,
-        company_id=deal.company_id
-    )
+    db_deal = models.deal.Deal(**deal.model_dump())
     db.add(db_deal)
     db.commit()
     db.refresh(db_deal)
@@ -58,11 +52,9 @@ def update_deal(db: Session, db_deal: models.deal.Deal, deal_update: deal_schema
     """
     Update an existing deal record.
     """
-    update_data = deal_update.dict(exclude_unset=True)
-
+    update_data = deal_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_deal, key, value)
-    
     db.add(db_deal)
     db.commit()
     db.refresh(db_deal)
