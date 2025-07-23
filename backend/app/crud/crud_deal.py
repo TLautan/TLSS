@@ -28,10 +28,16 @@ def get_deals(db: Session, skip: int = 0, limit: int = 100) -> List[models.deal.
 
 def get_deals_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> List[models.deal.Deal]:
     """
-    Retrieve all deals assigned to a specific user.
+    Retrieve all deals assigned to a specific user, eagerly loading company data.
     """
-    return db.query(models.deal.Deal).filter(models.deal.Deal.user_id == user_id).offset(skip).limit(limit).all()
-
+    return (
+        db.query(models.deal.Deal)
+        .options(joinedload(models.deal.Deal.company))
+        .filter(models.deal.Deal.user_id == user_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 # --- CREATE Operation ---
 

@@ -1,131 +1,152 @@
 // frontend/app/page.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
-//import axios from 'axios';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { DollarSign, Zap, Target, Users } from "lucide-react";
-import { getOverallKpis } from '@/lib/api';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-// Define the types for our API data structure
-interface SalesData {
-  label: string;
-  sales: number;
-}
-
-interface KpiData {
-  direct_sales: { conclusion_rate: number; won_count: number };
-  agency_sales: { conclusion_rate: number; won_count: number };
-  average_customer_unit_price: number;
-  monthly_sales_data: SalesData[];
-  total_annual_sales: number;
-}
+import { useEffect, useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { DollarSign, Users, CreditCard, Activity as ActivityIcon } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { getDashboardData, getDeals } from '@/lib/api';
+import { Deal, DashboardData } from '@/lib/types';
 
 export default function DashboardPage() {
-  const [kpis, setKpis] = useState<KpiData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [recentDeals, setRecentDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getOverallKpis()
-        setKpis(data);
+        setLoading(true);
+        const [analyticsData, dealsData] = await Promise.all([
+          getDashboardData(),
+          getDeals({ limit: 5 }) // Fetch 5 most recent deals
+        ]);
+        
+        setDashboardData(analyticsData);
+        setRecentDeals(dealsData);
+
       } catch (err) {
-        setError('Failed to load dashboard data.');
         console.error(err);
+        setError('Failed to fetch dashboard data. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, []);
 
   if (loading) {
-    return <div className="flex items-center justify-center h-full"><p>ロード中...</p></div>;
-  }
-  if (error) {
-    return <div className="flex items-center justify-center h-full"><p className="text-red-500">{error}</p></div>;
-  }
-  if (!kpis) {
-    return <div className="flex items-center justify-center h-full"><p>No data available.</p></div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-lg font-semibold">Loading Dashboard...</div>
+      </div>
+    );
   }
 
-  // Define the data for the sales chart
-  const salesChartData = {
-    labels: kpis.monthly_sales_data.map(d => d.label),
-    datasets: [{
-      label: 'Monthly Sales',
-      data: kpis.monthly_sales_data.map(d => d.sales),
-      backgroundColor: 'rgba(54, 162, 235, 0.6)',
-      borderColor: 'rgba(54, 162, 235, 1)',
-      borderWidth: 1,
-    }],
-  };
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-red-500 bg-red-100 p-4 rounded-lg">{error}</div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">ダッシュボード概要</h1>
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">Sales Dashboard</h2>
+      </div>
       
-      {/* KPI Cards Grid - This is the single, correct grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">年間総売上 (Total Annual Sales)</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">¥{kpis.total_annual_sales.toLocaleString()}</div>
+            <div className="text-2xl font-bold">¥{dashboardData?.total_revenue.toLocaleString() || '0'}</div>
+            <p className="text-xs text-muted-foreground">Total revenue from all won deals</p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">顧客平均単価 (Avg. Unit Price)</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">¥{kpis.average_customer_unit_price.toLocaleString()}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">直販売上 (Direct Sales)</CardTitle>
+            <CardTitle className="text-sm font-medium">Win Rate</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+{kpis.direct_sales.won_count}</div>
-            <p className="text-xs text-muted-foreground">成約率: {kpis.direct_sales.conclusion_rate}%</p>
+            <div className="text-2xl font-bold">{dashboardData?.win_rate || '0'}%</div>
+            <p className="text-xs text-muted-foreground">Percentage of deals won</p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">代理店売上 (Agency Sales)</CardTitle>
-            <Zap className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Deals</CardTitle>
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+{kpis.agency_sales.won_count}</div>
-            <p className="text-xs text-muted-foreground">成約率: {kpis.agency_sales.conclusion_rate}%</p>
+            <div className="text-2xl font-bold">{dashboardData?.total_deals || '0'}</div>
+            <p className="text-xs text-muted-foreground">Total number of deals in the pipeline</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Average Deal Size</CardTitle>
+            <ActivityIcon className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">¥{dashboardData?.average_deal_size.toLocaleString() || '0'}</div>
+            <p className="text-xs text-muted-foreground">Average value of won deals</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Monthly Sales Chart */}
-      <div className="mt-8">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>月間売上推移 (Monthly Sales Trend)</CardTitle>
+            <CardTitle>Monthly Sales Overview</CardTitle>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={dashboardData?.monthly_sales_chart_data}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value: number) => `¥${(value / 10000).toLocaleString()}万`} />
+                <Tooltip formatter={(value: number) => `¥${value.toLocaleString()}`} />
+                <Legend />
+                <Bar dataKey="total" fill="#8884d8" name="Total Sales" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Recent Deals</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[350px]">
-              <Bar options={{ responsive: true, maintainAspectRatio: false }} data={salesChartData} />
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Sales Rep</TableHead>
+                  <TableHead className="text-right">Value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentDeals.map((deal) => (
+                  <TableRow key={deal.id}>
+                    <TableCell>
+                        <div className="font-medium">{deal.company?.company_name || 'N/A'}</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">{deal.title}</div>
+                    </TableCell>
+                    <TableCell>{deal.user?.name || 'N/A'}</TableCell>
+                    <TableCell className="text-right">¥{deal.value.toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>

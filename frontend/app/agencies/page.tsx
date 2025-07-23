@@ -7,14 +7,7 @@ import { getAgencies } from '@/lib/api';
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
-
-// Define the type for the agency data
-interface Agency {
-  id: number;
-  agency_name: string;
-  contact_person: string | null;
-  contact_email: string | null;
-}
+import { Agency } from '@/lib/types';
 
 export default function AgenciesListPage() {
   const [agencies, setAgencies] = useState<Agency[]>([]);

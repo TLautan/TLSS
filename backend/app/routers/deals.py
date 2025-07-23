@@ -32,32 +32,13 @@ def read_all_deals(
     deals = crud_deal.get_deals(db, skip=skip, limit=limit)
     return deals
 
-
-# This endpoint now accepts the full DealCreate schema
 @router.post("/", response_model=schemas.deal.Deal, status_code=status.HTTP_201_CREATED)
 def create_new_deal(deal: schemas.deal.DealCreate, db: Session = Depends(get_db)):
     """
     Create a new deal.
     """
-    # Optional: Add checks here to ensure the user_id and company_id exist
-    # user = crud_user.get_user(db, user_id=deal.user_id)
-    # if not user:
-    #     raise HTTPException(status_code=404, detail="User not found")
-
-    # Create a new SQLAlchemy model instance using all the data
-    db_deal = models.deal.Deal(
-        title=deal.title,
-        value=deal.value,
-        type=deal.type,
-        user_id=deal.user_id,
-        company_id=deal.company_id
-    )
-
-    db.add(db_deal)
-    db.commit()
-    db.refresh(db_deal)
-
-    return db_deal
+    # This keeps all database logic in the crud layer
+    return crud_deal.create_deal(db=db, deal=deal)
 
 # You can add GET/PUT/DELETE endpoints for deals here later
 # If you want a GET by ID:

@@ -8,24 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
-// Define the types for the nested data
-interface User {
-  id: number;
-  name: string;
-}
-interface Company {
-  id: number;
-  company_name: string;
-}
-interface Deal {
-  id: number;
-  title: string;
-  value: number;
-  status: string;
-  user: User; // Nested user object
-  company: Company; // Nested company object
-}
+import { Deal } from '@/lib/types';
 
 export default function DealsListPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -79,8 +62,8 @@ export default function DealsListPage() {
                   deals.map((deal) => (
                     <TableRow key={deal.id}>
                       <TableCell className="font-medium">{deal.title}</TableCell>
-                      <TableCell>{deal.company.company_name}</TableCell>
-                      <TableCell>{deal.user.name}</TableCell>
+                      <TableCell>{deal.company?.company_name || 'N/A'}</TableCell>
+                      <TableCell>{deal.user?.name || 'N/A'}</TableCell>
                       <TableCell><Badge variant="outline">{deal.status}</Badge></TableCell>
                       <TableCell className="text-right">¥{deal.value.toLocaleString()}</TableCell>
                     </TableRow>

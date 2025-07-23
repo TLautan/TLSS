@@ -1,8 +1,7 @@
 // frontend/app/register/activity/page.tsx
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import ActivityForm from "@/features/activity-registration/components/activity-form";
-
+import { ActivityForm } from "@/features/activity-registration/components/activity-form"
 export default function RegisterActivityPage() {
   return (
     <div>

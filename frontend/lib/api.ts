@@ -1,5 +1,8 @@
 // frontend/lib/api.ts
 import axios from 'axios';
+import { Deal, User, Company, Agency, Activity, KpiData, DashboardData } from './types';
+
+
 
 // It dynamically uses the URL from the environment variable.
 const apiClient = axios.create({
@@ -7,13 +10,19 @@ const apiClient = axios.create({
 });
 
 // --- Analytics ---
-export const getOverallKpis = async () => {
+
+export const getDashboardData = async (): Promise<DashboardData> => {
+  const response = await apiClient.get('/analytics/dashboard');
+  return response.data;
+};
+
+export const getOverallKpis = async (): Promise<KpiData> => {
   const response = await apiClient.get('/analytics/overall-kpis');
   return response.data;
 };
 
-export const getUserPerformance = async (userId: string) => {
-  const response = await apiClient.get(`/analytics/user/${userId}/performance`);
+export const getUserPerformance = async (userId: number) => {
+  const response = await apiClient.get(`/analytics/user-performance/${userId}`);
   return response.data;
 };
 
@@ -53,14 +62,14 @@ export const createUser = async (userData: UserData) => {
   return response.data;
 };
 
-export const getUsers = async () => {
-  const response = await apiClient.get('/users/');
+export const getUsers = async (params?: { skip?: number; limit?: number }): Promise<User[]> => {
+  const response = await apiClient.get('/users/', { params });
   return response.data;
 };
 
 // --- Companies ---
-export const getCompanies = async () => {
-  const response = await apiClient.get('/companies/');
+export const getCompanies = async (params?: { skip?: number; limit?: number }): Promise<Company[]> => {
+  const response = await apiClient.get('/companies/', { params });
   return response.data;
 };
 
@@ -95,8 +104,8 @@ export const createDeal = async (dealData: DealData) => {
   return response.data;
 };
 
-export const getDeals = async () => {
-  const response = await apiClient.get('/deals/');
+export const getDeals = async (params?: { skip?: number; limit?: number }): Promise<Deal[]> => {
+  const response = await apiClient.get('/deals/', { params });
   return response.data;
 };
 
@@ -107,14 +116,14 @@ interface ActivityData {
   notes?: string;
 }
 
-export const createActivityForDeal = async (dealId: string, activityData: ActivityData) => {
-  const response = await apiClient.post(`/deals/${dealId}/activities/`, activityData);
-  return response.data;
+export const createActivityForDeal = async (dealId: number, activityData: ActivityData) => {
+    const response = await apiClient.post(`/deals/${dealId}/activities/`, activityData);
+    return response.data;
 };
 
-export const getActivitiesForDeal = async (dealId: string) => {
-  const response = await apiClient.get(`/deals/${dealId}/activities/`);
-  return response.data;
+export const getActivitiesForDeal = async (dealId: number): Promise<Activity[]> => {
+    const response = await apiClient.get(`/deals/${dealId}/activities/`);
+    return response.data;
 };
 
 // --- Agency ---
@@ -132,9 +141,9 @@ export const createAgency = async (agencyData: AgencyData) => {
   return response.data;
 };
 
-export const getAgencies = async () => {
-  const response = await apiClient.get('/agencies/');
-  return response.data;
+export const getAgencies = async (params?: { skip?: number; limit?: number }): Promise<Agency[]> => {
+    const response = await apiClient.get('/agencies/', { params });
+    return response.data;
 };
 
 // Add other functions for POST, PUT, DELETE as needed
