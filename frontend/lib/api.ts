@@ -16,7 +16,7 @@ export const getDashboardData = async (): Promise<DashboardData> => {
 };
 
 export const getOverallKpis = async (): Promise<KpiData> => {
-  const response = await apiClient.get('/analytics/overall-kpis');
+  const response = await apiClient.get('/analytics/detailed-kpis');
   return response.data;
 };
 
@@ -172,7 +172,6 @@ export interface FastAPIErrorResponse {
 export interface SimpleErrorResponse {
   message: string;
 }
-
 
 // Add other functions for POST, PUT, DELETE as needed
 // For example:

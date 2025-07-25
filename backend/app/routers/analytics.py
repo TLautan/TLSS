@@ -27,7 +27,7 @@ def get_simple_kpis_route(db: Session = Depends(get_db)):
     """
     return analytics_service.get_simple_kpis(db)
 
-@router.get("/detailed-kpis")
+@router.get("/detailed-kpis", response_model=analytics_schema.DetailedKPIs)
 def get_detailed_kpis_route(db: Session = Depends(get_db)):
     """
     Endpoint for more detailed analytics dashboard.
