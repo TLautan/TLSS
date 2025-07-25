@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import analytics, companies, users, agencies, activities, deals
+from app.routers import analytics, companies, users, agencies, activities, deals, importer
 
 app = FastAPI(title="営業管理システム")
 
@@ -27,6 +27,7 @@ app.include_router(users.router, prefix="/api")
 app.include_router(agencies.router, prefix="/api")
 app.include_router(activities.router, prefix="/api")
 app.include_router(deals.router, prefix="/api")
+app.include_router(importer.router, prefix="/api")
 
 @app.get("/")
 def read_root():

@@ -4,7 +4,6 @@ import { Deal, User, Company, Agency, Activity, KpiData, DashboardData } from '.
 
 
 
-// It dynamically uses the URL from the environment variable.
 const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
 });
@@ -146,8 +145,38 @@ export const getAgencies = async (params?: { skip?: number; limit?: number }): P
     return response.data;
 };
 
+// --- Importer ---
+export const importDeals = async (deals: Omit<Deal, 'id' | 'created_at' | 'updated_at' | 'user' | 'company'>[]) => {
+  const response = await apiClient.post('/importer/deals', deals);
+  return response.data;
+};
+
+// --- FAST API Error Structures ---
+export interface FastAPIValidationError {
+  loc: (string | number)[]; // Location of the error, e.g., ["body", "email"]
+  msg: string;              // Error message
+  type: string;             // Error type, e.g., "value_error.email"
+}
+
+export interface FastAPIErrorDetailWithErrors {
+  message?: string; // Overall message for multiple errors, often "Validation Error"
+  errors: FastAPIValidationError[]; // Array of detailed validation errors
+}
+
+export interface FastAPIErrorResponse {
+  detail: string | FastAPIErrorDetailWithErrors; // Detail can be a string or structured errors
+  // Add other common properties like 'code', 'status_code' if your API sends them
+}
+
+// You might also have simpler error messages from your backend
+export interface SimpleErrorResponse {
+  message: string;
+}
+
+
 // Add other functions for POST, PUT, DELETE as needed
 // For example:
 // export const createCompany = (companyData) => {
 //   return apiClient.post('/companies/', companyData);
 // };
+
