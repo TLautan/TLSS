@@ -8,49 +8,95 @@ from app.models.company import Company
 from app.models.user import User
 from app.models.activity import Activity
 from app.models.enums import DealStatus, DealType
+from datetime import datetime, timedelta
 
 def get_dashboard_data(db: Session) -> Dict[str, Any]:
     """
-    Calculates and combines all necessary KPIs and chart data for the main dashboard.
+    Calculates and retrieves all necessary data for the main dashboard,
+    using the correct nested structure that the schema expects.
     """
+    
     # --- KPI Calculations ---
     total_deals = db.query(Deal).count()
-    total_value_query = db.query(func.sum(Deal.value)).filter(Deal.status == DealStatus.won).scalar()
-    total_revenue = total_value_query if total_value_query is not None else 0
+    total_value_query = db.query(func.sum(Deal.value)).scalar()
+    total_value = total_value_query if total_value_query is not None else 0
 
     won_deals_count = db.query(Deal).filter(Deal.status == DealStatus.won).count()
     lost_deals_count = db.query(Deal).filter(Deal.status == DealStatus.lost).count()
+    
     total_closed_deals = won_deals_count + lost_deals_count
-
+    
     win_rate = (won_deals_count / total_closed_deals) * 100 if total_closed_deals > 0 else 0
-    average_deal_size = total_revenue / won_deals_count if won_deals_count > 0 else 0
+    average_deal_size = total_value / won_deals_count if won_deals_count > 0 else 0
+    
+    kpis = {
+        "total_deals": total_deals,
+        "total_value": round(float(total_value), 2),
+        "win_rate": round(win_rate, 2),
+        "average_deal_size": round(float(average_deal_size), 2)
+    }
 
     # --- Chart Data ---
-    # 1. Monthly Sales for Bar Chart
+    twelve_months_ago = datetime.utcnow() - timedelta(days=365)
+    
     monthly_sales = db.query(
-        extract('year', Deal.closed_at).label('year'),
-        extract('month', Deal.closed_at).label('month'),
+        func.date_trunc('month', Deal.closed_at).label('month'),
         func.sum(Deal.value).label('total')
-    ).filter(Deal.status == DealStatus.won, Deal.closed_at.isnot(None)).group_by('year', 'month').order_by('year', 'month').limit(12).all()
+    ).filter(Deal.status == DealStatus.won, Deal.closed_at >= twelve_months_ago).group_by('month').order_by('month').all()
 
     monthly_sales_chart_data = [
-        {"name": f"{sale.year}-{str(sale.month).zfill(2)}", "total": float(sale.total)}
+        {"name": sale.month.strftime("%Y-%m"), "total": float(sale.total)}
         for sale in monthly_sales
     ]
 
-    # 2. Deal Outcomes for Donut Chart
-    deal_outcomes_data = [
+    deal_outcomes_chart_data = [
         {"name": "Won", "value": won_deals_count},
-        {"name": "Lost", "value": lost_deals_count}
+        {"name": "Lost", "value": lost_deals_count},
+    ]
+
+    # --- Recent Data ---
+    recent_deals = db.query(Deal).order_by(Deal.created_at.desc()).limit(5).all()
+    recent_users = db.query(User).order_by(User.created_at.desc()).limit(5).all()
+
+
+    # The final returned object now perfectly matches the DashboardData schema
+    return {
+        "kpis": kpis,
+        "monthly_sales_chart_data": monthly_sales_chart_data,
+        "deal_outcomes_chart_data": deal_outcomes_chart_data,
+        "recent_deals": recent_deals,
+        "recent_users": recent_users,
+    }
+
+def get_deal_outcomes_analysis(db: Session) -> Dict[str, Any]:
+    """
+    Performs a detailed analysis of deal outcomes, grouping by reason and industry.
+    """
+    # Analysis for Win/Loss reasons
+    win_reasons = db.query(Deal.win_reason, func.count(Deal.id).label('count')).filter(Deal.status == DealStatus.won, Deal.win_reason.isnot(None)).group_by(Deal.win_reason).order_by(func.count(Deal.id).desc()).all()
+    loss_reasons = db.query(Deal.loss_reason, func.count(Deal.id).label('count')).filter(Deal.status == DealStatus.lost, Deal.loss_reason.isnot(None)).group_by(Deal.loss_reason).order_by(func.count(Deal.id).desc()).all()
+
+    # Analysis by Industry
+    industry_stats = db.query(
+        Company.industry,
+        func.count(Deal.id).label('total_deals'),
+        func.sum(case((Deal.status == DealStatus.won, 1), else_=0)).label('won_deals')
+    ).join(Company, Deal.company_id == Company.id).group_by(Company.industry).all()
+
+    industry_performance = [
+        {
+            "industry": stat.industry or "Unknown",
+            "total_deals": stat.total_deals,
+            "won_deals": stat.won_deals,
+            "win_rate": round((stat.won_deals / stat.total_deals) * 100, 2) if stat.total_deals > 0 else 0
+        }
+        for stat in industry_stats
     ]
 
     return {
-        "total_revenue": round(total_revenue, 2),
-        "total_deals": total_deals,
-        "win_rate": round(win_rate, 2),
-        "average_deal_size": round(average_deal_size, 2),
-        "monthly_sales_chart_data": monthly_sales_chart_data,
-        "deal_outcomes_chart_data": deal_outcomes_data
+        "win_reasons": [{"reason": r.win_reason, "count": r.count} for r in win_reasons],
+        "loss_reasons": [{"reason": r.loss_reason, "count": r.count} for r in loss_reasons],
+        "industry_performance": sorted(industry_performance, key=lambda x: x['total_deals'], reverse=True)
     }
 
 def get_simple_kpis(db: Session) -> Dict[str, Any]:

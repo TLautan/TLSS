@@ -43,12 +43,12 @@ def get_user_performance_route(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return metrics
 
-@router.get("/deal-outcomes")
-def get_deal_outcomes_route(db: Session = Depends(get_db)):
+@router.get("/deal-outcomes", response_model=analytics_schema.DealOutcomesData)
+def get_deal_outcomes_analysis_route(db: Session = Depends(get_db)):
     """
-    Provides a breakdown of deal outcomes grouped by status, industry, and reason.
+    Endpoint to get detailed analysis of deal outcomes.
     """
-    return analytics_service.get_deal_outcome_breakdowns(db)
+    return analytics_service.get_deal_outcomes_analysis(db)
 
 @router.get("/monthly-cancellation-rate")
 def get_monthly_cancellation_rate_route(db: Session = Depends(get_db)):

@@ -42,6 +42,26 @@ export interface KpiData {
   average_deal_size: number;
 }
 
+export interface ChartDataPoint {
+  name: string;
+  total: number;
+}
+
+export interface DonutChartDataPoint {
+  name: string;
+  value: number;
+}
+export interface DashboardData {
+  kpis: {
+    total_deals: number;
+    total_value: number;
+    win_rate: number;
+    average_deal_size: number;
+  };
+  monthly_sales_chart_data: ChartDataPoint[];
+  deal_outcomes_chart_data: DonutChartDataPoint[];
+  recent_deals: Deal[];
+}
 
 // Defines the structure for the Agency object
 export interface Agency {
@@ -72,21 +92,22 @@ export interface MonthlySale {
     total: number;
 }
 
-export interface ChartDataPoint {
-    name: string;
-    total: number;
+// Deal Outcomes
+
+export interface ReasonAnalysis {
+    reason: string;
+    count: number;
 }
 
-export interface DonutChartDataPoint {
-    name: string;
-    value: number;
-}
-
-export interface DashboardData {
-    total_revenue: number;
+export interface IndustryPerformance {
+    industry: string;
     total_deals: number;
+    won_deals: number;
     win_rate: number;
-    average_deal_size: number;
-    monthly_sales_chart_data: ChartDataPoint[];
-    deal_outcomes_chart_data: DonutChartDataPoint[];
+}
+
+export interface DealOutcomesData {
+    win_reasons: ReasonAnalysis[];
+    loss_reasons: ReasonAnalysis[];
+    industry_performance: IndustryPerformance[];
 }

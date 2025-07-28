@@ -1,7 +1,7 @@
 # backend/app/schemas/analytics.py
 
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List, Dict, Any
 from .deal import Deal
 from .user import User
 
@@ -18,8 +18,18 @@ class OverallKPIs(BaseModel):
     class Config:
         from_attributes = True
 
+class ChartDataPoint(BaseModel):
+    name: str
+    total: float
+
+class DonutChartDataPoint(BaseModel):
+    name: str
+    value: int
+
 class DashboardData(BaseModel):
     kpis: OverallKPIs
+    monthly_sales_chart_data: List[ChartDataPoint]
+    deal_outcomes_chart_data: List[DonutChartDataPoint]
     recent_deals: List[Deal]
     recent_users: List[User]
 
@@ -57,3 +67,22 @@ class UserPerformance(BaseModel):
     user_name: str
     average_days_to_win: float
     activity_summary: Dict[str, int]
+
+# --- SCHEMAS FOR DEAL OUTCOME ANALYSIS ---
+class ReasonAnalysis(BaseModel):
+    reason: str
+    count: int
+
+class IndustryPerformance(BaseModel):
+    industry: str
+    total_deals: int
+    won_deals: int
+    win_rate: float
+
+class DealOutcomesData(BaseModel):
+    win_reasons: List[ReasonAnalysis]
+    loss_reasons: List[ReasonAnalysis]
+    industry_performance: List[IndustryPerformance]
+
+    class Config:
+        from_attributes = True

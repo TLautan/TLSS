@@ -123,7 +123,7 @@ export default function ImportPage() {
 
         if (responseData) {
             if ('detail' in responseData) {
-            const detailContent = responseData.detail; // TypeScript knows this is string | FastAPIErrorDetailWithErrors
+            const detailContent = responseData.detail;
 
             if (typeof detailContent === 'string') {
                 setError(detailContent);

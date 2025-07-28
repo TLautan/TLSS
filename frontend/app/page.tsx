@@ -7,7 +7,7 @@ import { DollarSign, Users, CreditCard, Activity as ActivityIcon } from 'lucide-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getDashboardData } from '@/lib/api';
-import { Deal, DashboardData } from '@/lib/types';
+import { DashboardData } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 
 const COLORS = ['#16a34a', '#dc2626'];
@@ -131,7 +131,7 @@ export default function DashboardPage() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) => `${name}: ${percent ? (percent * 100).toFixed(0) : 0}%`}
                         outerRadius={100}
                         fill="#8884d8"
                         dataKey="value"

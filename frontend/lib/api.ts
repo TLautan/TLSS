@@ -1,6 +1,6 @@
 // frontend/lib/api.ts
 import axios from 'axios';
-import { Deal, User, DashboardData, Agency, Company, Activity } from './types';
+import { Deal, User, DashboardData, Agency, Company, Activity, DealOutcomesData } from './types';
 
 const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -20,6 +20,11 @@ export const getDashboardData = async (): Promise<DashboardData> => {
 
 export const getUserPerformance = async (userId: number) => {
   const response = await apiClient.get(`/analytics/user-performance/${userId}`);
+  return response.data;
+};
+
+export const getDealOutcomesData = async (): Promise<DealOutcomesData> => {
+  const response = await apiClient.get('/analytics/deal-outcomes');
   return response.data;
 };
 
@@ -144,9 +149,21 @@ export const getAgencies = async (params?: { skip?: number; limit?: number }): P
 };
 
 // --- Importer ---
-export const importDeals = async (deals: Omit<Deal, 'id' | 'user' | 'company'>[]): Promise<{ message: string }> => {
-    const response = await apiClient.post('/import/deals', deals);
-    return response.data;
+export interface DealImportData {
+  title: string;
+  value: number;
+  type: "direct" | "agency";
+  user_id: number;
+  company_id: number;
+  status: "in_progress" | "won" | "lost" | "cancelled";
+  lead_source?: string;
+  product_name?: string;
+  forecast_accuracy?: "高" | "中" | "低";
+}
+
+export const importDeals = async (deals: DealImportData[]) => {
+  const response = await apiClient.post('/importer/deals', deals);
+  return response.data;
 };
 
 // --- FAST API Error Structures ---
