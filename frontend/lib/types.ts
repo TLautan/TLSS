@@ -72,10 +72,21 @@ export interface MonthlySale {
     total: number;
 }
 
+export interface ChartDataPoint {
+    name: string;
+    total: number;
+}
+
+export interface DonutChartDataPoint {
+    name: string;
+    value: number;
+}
+
 export interface DashboardData {
     total_revenue: number;
     total_deals: number;
     win_rate: number;
     average_deal_size: number;
-    monthly_sales_chart_data: MonthlySale[];
+    monthly_sales_chart_data: ChartDataPoint[];
+    deal_outcomes_chart_data: DonutChartDataPoint[];
 }

@@ -1,8 +1,6 @@
 // frontend/lib/api.ts
 import axios from 'axios';
-import { Deal, User, Company, Agency, Activity, KpiData, DashboardData } from './types';
-
-
+import { Deal, User, DashboardData, Agency, Company, Activity } from './types';
 
 const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -15,10 +13,10 @@ export const getDashboardData = async (): Promise<DashboardData> => {
   return response.data;
 };
 
-export const getOverallKpis = async (): Promise<KpiData> => {
+/*export const getOverallKpis = async (): Promise<KpiData> => {
   const response = await apiClient.get('/analytics/detailed-kpis');
   return response.data;
-};
+};*/
 
 export const getUserPerformance = async (userId: number) => {
   const response = await apiClient.get(`/analytics/user-performance/${userId}`);
@@ -62,14 +60,14 @@ export const createUser = async (userData: UserData) => {
 };
 
 export const getUsers = async (params?: { skip?: number; limit?: number }): Promise<User[]> => {
-  const response = await apiClient.get('/users/', { params });
-  return response.data;
+    const response = await apiClient.get('/users/', { params });
+    return response.data;
 };
 
 // --- Companies ---
 export const getCompanies = async (params?: { skip?: number; limit?: number }): Promise<Company[]> => {
-  const response = await apiClient.get('/companies/', { params });
-  return response.data;
+    const response = await apiClient.get('/companies/', { params });
+    return response.data;
 };
 
 interface CompanyData {
@@ -121,7 +119,7 @@ export const createActivityForDeal = async (dealId: number, activityData: Activi
 };
 
 export const getActivitiesForDeal = async (dealId: number): Promise<Activity[]> => {
-    const response = await apiClient.get(`/deals/${dealId}/activities/`);
+    const response = await apiClient.get(`/activities/deal/${dealId}`);
     return response.data;
 };
 
@@ -146,9 +144,9 @@ export const getAgencies = async (params?: { skip?: number; limit?: number }): P
 };
 
 // --- Importer ---
-export const importDeals = async (deals: Omit<Deal, 'id' | 'created_at' | 'updated_at' | 'user' | 'company'>[]) => {
-  const response = await apiClient.post('/importer/deals', deals);
-  return response.data;
+export const importDeals = async (deals: Omit<Deal, 'id' | 'user' | 'company'>[]): Promise<{ message: string }> => {
+    const response = await apiClient.post('/import/deals', deals);
+    return response.data;
 };
 
 // --- FAST API Error Structures ---

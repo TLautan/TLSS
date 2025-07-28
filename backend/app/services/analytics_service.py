@@ -11,38 +11,46 @@ from app.models.enums import DealStatus, DealType
 
 def get_dashboard_data(db: Session) -> Dict[str, Any]:
     """
-    Calculates and combines all necessary KPIs for the main dashboard in a single function.
+    Calculates and combines all necessary KPIs and chart data for the main dashboard.
     """
-    # --- Simple KPIs ---
+    # --- KPI Calculations ---
     total_deals = db.query(Deal).count()
-    total_value_query = db.query(func.sum(Deal.value)).scalar()
-    total_value = total_value_query if total_value_query is not None else 0
+    total_value_query = db.query(func.sum(Deal.value)).filter(Deal.status == DealStatus.won).scalar()
+    total_revenue = total_value_query if total_value_query is not None else 0
 
     won_deals_count = db.query(Deal).filter(Deal.status == DealStatus.won).count()
     lost_deals_count = db.query(Deal).filter(Deal.status == DealStatus.lost).count()
     total_closed_deals = won_deals_count + lost_deals_count
 
     win_rate = (won_deals_count / total_closed_deals) * 100 if total_closed_deals > 0 else 0
-    average_deal_size = total_value / won_deals_count if won_deals_count > 0 else 0
+    average_deal_size = total_revenue / won_deals_count if won_deals_count > 0 else 0
 
-    # --- Monthly Sales Chart Data ---
+    # --- Chart Data ---
+    # 1. Monthly Sales for Bar Chart
     monthly_sales = db.query(
         extract('year', Deal.closed_at).label('year'),
         extract('month', Deal.closed_at).label('month'),
-        func.sum(Deal.value).label('total_sales')
-    ).filter(Deal.status == DealStatus.won, Deal.closed_at.isnot(None)).group_by('year', 'month').order_by('year', 'month').all()
+        func.sum(Deal.value).label('total')
+    ).filter(Deal.status == DealStatus.won, Deal.closed_at.isnot(None)).group_by('year', 'month').order_by('year', 'month').limit(12).all()
 
-    formatted_monthly_sales = [
-        {"name": f"{sale.year}-{str(sale.month).zfill(2)}", "total": float(sale.total_sales)}
+    monthly_sales_chart_data = [
+        {"name": f"{sale.year}-{str(sale.month).zfill(2)}", "total": float(sale.total)}
         for sale in monthly_sales
     ]
 
+    # 2. Deal Outcomes for Donut Chart
+    deal_outcomes_data = [
+        {"name": "Won", "value": won_deals_count},
+        {"name": "Lost", "value": lost_deals_count}
+    ]
+
     return {
-        "total_revenue": round(total_value, 2),
+        "total_revenue": round(total_revenue, 2),
         "total_deals": total_deals,
         "win_rate": round(win_rate, 2),
         "average_deal_size": round(average_deal_size, 2),
-        "monthly_sales_chart_data": formatted_monthly_sales
+        "monthly_sales_chart_data": monthly_sales_chart_data,
+        "deal_outcomes_chart_data": deal_outcomes_data
     }
 
 def get_simple_kpis(db: Session) -> Dict[str, Any]:

@@ -6,7 +6,6 @@ from app.database import get_db
 from app.services import analytics_service
 from app.schemas import analytics as analytics_schema
 from app.schemas.churn import MonthlyDataPayload
-from typing import List, Dict, Any
 
 router = APIRouter(
     prefix="/analytics",
@@ -14,7 +13,7 @@ router = APIRouter(
 )
 
 @router.get("/dashboard", response_model=analytics_schema.DashboardData)
-def get_dashboard_data_route(db: Session = Depends(get_db)):
+def get_dashboard_analytics(db: Session = Depends(get_db)):
     """
     Endpoint to get all necessary data for the main dashboard.
     """
