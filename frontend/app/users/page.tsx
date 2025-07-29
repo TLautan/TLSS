@@ -109,7 +109,7 @@ export default function UsersListPage() {
                         <DropdownMenuItem onClick={() => router.push(`/analytics/user/${user.id}`)}>
                           パフォーマンスを表示
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => router.push(`/users/edit/${user.id}`)}>
+                        <DropdownMenuItem onClick={() => router.push(`/users/${user.id}/edit`)}>
                           編集
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />

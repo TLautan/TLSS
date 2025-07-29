@@ -120,7 +120,7 @@ export default function CompaniesListPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => router.push(`/companies/edit/${company.id}`)}>
+                            <DropdownMenuItem onClick={() => router.push(`/companies/${company.id}/edit`)}>
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => openDeleteDialog(company)} className="text-destructive">

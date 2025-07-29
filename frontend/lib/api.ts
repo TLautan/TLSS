@@ -134,7 +134,7 @@ interface DealUpdateData {
     title?: string;
     value?: number;
     type?: string;
-    status?: 'in_progress' | 'won' | 'lost' | 'cancelled';
+    status?: string;
     user_id?: number;
     company_id?: number;
     lead_source?: string;
@@ -206,10 +206,10 @@ export const getAgencies = async (params?: { skip?: number; limit?: number }): P
 export interface DealImportData {
   title: string;
   value: number;
+  status: "in_progress" | "won" | "lost" | "cancelled";
   type: "direct" | "agency";
   user_id: number;
   company_id: number;
-  status: "in_progress" | "won" | "lost" | "cancelled";
   lead_source?: string;
   product_name?: string;
   forecast_accuracy?: "高" | "中" | "低";

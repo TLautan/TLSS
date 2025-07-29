@@ -1,4 +1,4 @@
-// frontend/app/companies/edit/[id]/page.tsx
+// frontend/app/companies/[id]/edit/page.tsx
 
 "use client";
 

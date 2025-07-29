@@ -3,28 +3,43 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getDeals } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { getDeals, deleteDeal } from '@/lib/api';
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Deal } from '@/lib/types';
-import { PlusCircle } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ActivityFormModal } from '@/features/activities/components/activity-form-modal';
+
 
 export default function DealsListPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [selectedDealForActivity, setSelectedDealForActivity] = useState<Deal | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [dealToDelete, setDealToDelete] = useState<Deal | null>(null);
+  const router = useRouter();
 
   const fetchData = async () => {
     try {
@@ -42,11 +57,31 @@ export default function DealsListPage() {
   useEffect(() => {
     fetchData();
   }, []);
-
+  
   const handleActivitySuccess = () => {
-      setSelectedDeal(null);
+      setSelectedDealForActivity(null);
       fetchData();
   }
+
+  const openDeleteDialog = (deal: Deal) => {
+    setDealToDelete(deal);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDelete = async () => {
+    if (!dealToDelete) return;
+
+    try {
+      await deleteDeal(dealToDelete.id);
+      setShowDeleteDialog(false);
+      setDealToDelete(null);
+      fetchData(); 
+    } catch (err) {
+      setError(`Failed to delete deal: ${dealToDelete.title}`);
+      console.error(err);
+      setShowDeleteDialog(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -81,7 +116,6 @@ export default function DealsListPage() {
                   deals.map((deal) => (
                     <TableRow key={deal.id}>
                       <TableCell className="font-medium">
-                        {/* UPDATED: Title is now a link */}
                         <Link href={`/deals/${deal.id}`} className="hover:underline">
                           {deal.title}
                         </Link>
@@ -91,23 +125,29 @@ export default function DealsListPage() {
                       <TableCell><Badge variant="outline">{deal.status}</Badge></TableCell>
                       <TableCell className="text-right">¥{Number(deal.value).toLocaleString()}</TableCell>
                       <TableCell className="text-center">
-                        <Dialog open={selectedDeal?.id === deal.id} onOpenChange={(isOpen) => !isOpen && setSelectedDeal(null)}>
-                          <DialogTrigger asChild>
-                            <Button variant="ghost" size="icon" onClick={() => setSelectedDeal(deal)}>
-                              <PlusCircle className="h-4 w-4" />
-                              <span className="sr-only">Add Activity</span>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
                             </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Add Activity for: {selectedDeal?.title}</DialogTitle>
-                              <DialogDescription>
-                                Log a new phone call, email, or meeting for this deal.
-                              </DialogDescription>
-                            </DialogHeader>
-                            {selectedDeal && <ActivityFormModal dealId={selectedDeal.id} onSuccess={handleActivitySuccess} />}
-                          </DialogContent>
-                        </Dialog>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => router.push(`/deals/${deal.id}`)}>
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setSelectedDealForActivity(deal)}>
+                              Add Activity
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push(`/deals/${deal.id}/edit`)}>
+                              Edit Deal
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => openDeleteDialog(deal)} className="text-destructive">
+                              Delete Deal
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))
@@ -123,6 +163,36 @@ export default function DealsListPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Activity Dialog */}
+      <Dialog open={!!selectedDealForActivity} onOpenChange={(isOpen) => !isOpen && setSelectedDealForActivity(null)}>
+          <DialogContent>
+              <DialogHeader>
+                  <DialogTitle>Add Activity for: {selectedDealForActivity?.title}</DialogTitle>
+                  <DialogDescription>
+                  Log a new phone call, email, or meeting for this deal.
+                  </DialogDescription>
+              </DialogHeader>
+              {selectedDealForActivity && <ActivityFormModal dealId={selectedDealForActivity.id} onSuccess={handleActivitySuccess} />}
+          </DialogContent>
+      </Dialog>
+      
+      {/* Delete Confirmation Dialog */}
+       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the deal
+              <span className="font-bold"> "{dealToDelete?.title}"</span>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDealToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
