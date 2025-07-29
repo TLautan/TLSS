@@ -1,17 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.schemas import company as company_schema
 from app.crud import crud_company
+from app.database import get_db
 from app.database import SessionLocal
 
 # Dependency to get a database session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 router = APIRouter(
     prefix="/companies",

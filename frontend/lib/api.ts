@@ -113,7 +113,6 @@ export const getDeals = async (params?: { skip?: number; limit?: number }): Prom
 
 // --- Activities ---
 interface ActivityData {
-  deal_id: number;
   type: string;
   notes?: string;
 }
@@ -124,7 +123,7 @@ export const createActivityForDeal = async (dealId: number, activityData: Activi
 };
 
 export const getActivitiesForDeal = async (dealId: number): Promise<Activity[]> => {
-    const response = await apiClient.get(`/activities/deal/${dealId}`);
+    const response = await apiClient.get(`/deals/${dealId}/activities/`);
     return response.data;
 };
 

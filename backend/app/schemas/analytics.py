@@ -5,10 +5,6 @@ from typing import List, Dict, Any
 from .deal import Deal
 from .user import User
 
-class MonthlySale(BaseModel):
-    name: str # e.g., "2023-07"
-    total: float
-
 class OverallKPIs(BaseModel):
     total_deals: int
     total_value: float

@@ -88,7 +88,7 @@ export default function DealsListPage() {
                       <TableCell><Badge variant="outline">{deal.status}</Badge></TableCell>
                       <TableCell className="text-right">¥{deal.value.toLocaleString()}</TableCell>
                       <TableCell className="text-center">
-                        <Dialog open={selectedDeal?.id === deal.id} onOpenChange={(isOpen) => !isOpen && setSelectedDeal(null)}>
+                        <Dialog open={selectedDeal?.id === deal.id} onOpenChange={(isOpen: string) => !isOpen && setSelectedDeal(null)}>
                           <DialogTrigger asChild>
                             <Button variant="ghost" size="icon" onClick={() => setSelectedDeal(deal)}>
                               <PlusCircle className="h-4 w-4" />

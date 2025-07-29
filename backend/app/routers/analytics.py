@@ -64,3 +64,10 @@ def receive_monthly_churn_data(payload: MonthlyDataPayload):
     """
     print(f"Received monthly data: {payload.monthly_data}")
     return {"message": "Data received successfully", "data": payload.monthly_data}
+
+@router.get("/outcome-breakdowns")
+def get_deal_outcome_breakdowns(db: Session = Depends(get_db)):
+    """
+    Breakitdown yeah break it brekit
+    """
+    return analytics_service.get_deal_outcome_breakdowns(db)

@@ -5,14 +5,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.schemas import agency as agency_schema
 from app.crud import crud_agency
-from app.database import SessionLocal
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+from app.database import get_db
 
 router = APIRouter(
     prefix="/agencies",

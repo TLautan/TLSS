@@ -7,7 +7,6 @@ from app.models.activity import ActivityType # Import the Enum from your model
 
 # Base schema with all common fields
 class ActivityBase(BaseModel):
-    deal_id: int
     type: ActivityType # Use the Enum for validation
     notes: Optional[str] = None
     date: Optional[datetime] = None
