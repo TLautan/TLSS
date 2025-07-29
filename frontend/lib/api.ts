@@ -13,11 +13,6 @@ export const getDashboardData = async (): Promise<DashboardData> => {
   return response.data;
 };
 
-/*export const getOverallKpis = async (): Promise<KpiData> => {
-  const response = await apiClient.get('/analytics/detailed-kpis');
-  return response.data;
-};*/
-
 export const getUserPerformance = async (userId: number) => {
   const response = await apiClient.get(`/analytics/user-performance/${userId}`);
   return response.data;
@@ -75,6 +70,11 @@ export const getCompanies = async (params?: { skip?: number; limit?: number }): 
     return response.data;
 };
 
+export const getCompany = async (companyId: number): Promise<Company> => {
+    const response = await apiClient.get(`/companies/${companyId}`);
+    return response.data;
+};
+
 interface CompanyData {
   company_name: string;
   industry: string;
@@ -84,6 +84,15 @@ export const createCompany = async (companyData: CompanyData) => {
   const response = await apiClient.post('/companies/', companyData);
   return response.data;
 };
+
+export const updateCompany = async (companyId: number, companyData: Partial<CompanyData>): Promise<Company> => {
+    const response = await apiClient.put(`/companies/${companyId}`, companyData);
+    return response.data;
+}
+
+export const deleteCompany = async (companyId: number): Promise<void> => {
+    await apiClient.delete(`/companies/${companyId}`);
+}
 
 
 // --- Deals ---
@@ -167,22 +176,20 @@ export const importDeals = async (deals: DealImportData[]) => {
 
 // --- FAST API Error Structures ---
 export interface FastAPIValidationError {
-  loc: (string | number)[]; // Location of the error, e.g., ["body", "email"]
-  msg: string;              // Error message
-  type: string;             // Error type, e.g., "value_error.email"
+  loc: (string | number)[];
+  msg: string;              
+  type: string;             
 }
 
 export interface FastAPIErrorDetailWithErrors {
-  message?: string; // Overall message for multiple errors, often "Validation Error"
-  errors: FastAPIValidationError[]; // Array of detailed validation errors
+  message?: string;
+  errors: FastAPIValidationError[]; 
 }
 
 export interface FastAPIErrorResponse {
-  detail: string | FastAPIErrorDetailWithErrors; // Detail can be a string or structured errors
-  // Add other common properties like 'code', 'status_code' if your API sends them
+  detail: string | FastAPIErrorDetailWithErrors;
 }
 
-// You might also have simpler error messages from your backend
 export interface SimpleErrorResponse {
   message: string;
 }

@@ -34,7 +34,6 @@ export function ActivityForm() {
   async function onSubmit(values: ActivityFormValues) {
     try {
       await createActivityForDeal(values.deal_id, {
-        deal_id: values.deal_id,
         type: values.type,
         notes: values.notes,
       });

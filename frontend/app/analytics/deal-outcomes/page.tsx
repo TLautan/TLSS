@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getDealOutcomesData } from '@/lib/api';
@@ -45,7 +45,7 @@ export default function DealOutcomesPage() {
         <Card>
           <CardHeader>
             <CardTitle>Top Win Reasons</CardTitle>
-            <CardDescription>What's driving successful deals?</CardDescription>
+            <CardDescription>{`What's driving successful deals?`}</CardDescription>
           </CardHeader>
           <CardContent>
             {data?.win_reasons && data.win_reasons.length > 0 ? (
