@@ -10,8 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Deal } from '@/lib/types';
 import { PlusCircle } from 'lucide-react';
-
-// Import Dialog components
 import {
   Dialog,
   DialogContent,
@@ -51,10 +49,10 @@ export default function DealsListPage() {
   }
 
   return (
-    <div className="space-y-6 p-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Deals</h1>
+          <h1 className="text-3xl font-bold">取引一覧 (Deals List)</h1>
           <p className="text-muted-foreground">Manage and track your sales deals.</p>
         </div>
         <Link href="/register/deal">
@@ -82,16 +80,22 @@ export default function DealsListPage() {
                 {deals.length > 0 ? (
                   deals.map((deal) => (
                     <TableRow key={deal.id}>
-                      <TableCell className="font-medium">{deal.title}</TableCell>
+                      <TableCell className="font-medium">
+                        {/* UPDATED: Title is now a link */}
+                        <Link href={`/deals/${deal.id}`} className="hover:underline">
+                          {deal.title}
+                        </Link>
+                      </TableCell>
                       <TableCell>{deal.company?.company_name || 'N/A'}</TableCell>
                       <TableCell>{deal.user?.name || 'N/A'}</TableCell>
                       <TableCell><Badge variant="outline">{deal.status}</Badge></TableCell>
-                      <TableCell className="text-right">¥{deal.value.toLocaleString()}</TableCell>
+                      <TableCell className="text-right">¥{Number(deal.value).toLocaleString()}</TableCell>
                       <TableCell className="text-center">
-                        <Dialog open={selectedDeal?.id === deal.id} onOpenChange={(isOpen: boolean) => !isOpen && setSelectedDeal(null)}>
+                        <Dialog open={selectedDeal?.id === deal.id} onOpenChange={(isOpen) => !isOpen && setSelectedDeal(null)}>
                           <DialogTrigger asChild>
                             <Button variant="ghost" size="icon" onClick={() => setSelectedDeal(deal)}>
                               <PlusCircle className="h-4 w-4" />
+                              <span className="sr-only">Add Activity</span>
                             </Button>
                           </DialogTrigger>
                           <DialogContent>

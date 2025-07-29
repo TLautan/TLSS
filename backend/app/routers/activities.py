@@ -1,6 +1,6 @@
 # backend/app/routers/activities.py
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status # type: ignore
 from sqlalchemy.orm import Session
 from typing import List
 from app import crud, schemas, models

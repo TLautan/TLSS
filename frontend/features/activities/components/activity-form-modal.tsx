@@ -1,4 +1,5 @@
 // frontend/features/activities/components/activity-form-modal.tsx
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";

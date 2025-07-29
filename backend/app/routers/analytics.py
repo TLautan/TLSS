@@ -1,6 +1,6 @@
 # backend/app/routers/analytics.py
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException # type: ignore
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.services import analytics_service

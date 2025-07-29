@@ -32,6 +32,9 @@ export interface Deal {
   updated_at: string;
   user?: User;
   company?: Company;
+  lead_source?: string;
+  product_name?: string;
+  forecast_accuracy?: "高" | "中" | "低";
 }
 
 // Defines the structure for the KPI data from the analytics endpoint

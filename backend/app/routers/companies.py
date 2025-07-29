@@ -1,4 +1,6 @@
-from fastapi import Depends, HTTPException, APIRouter
+# backend/app/routers/companies.py
+
+from fastapi import Depends, HTTPException, APIRouter # type: ignore
 from sqlalchemy.orm import Session
 from typing import List
 from app.schemas import company as company_schema
