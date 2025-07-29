@@ -184,7 +184,7 @@ export default function DealsListPage() {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the deal
-              <span className="font-bold"> "{dealToDelete?.title}"</span>.
+              <span className="font-bold">  {`"{dealToDelete?.title}"`}</span>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

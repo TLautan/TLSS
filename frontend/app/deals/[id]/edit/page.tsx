@@ -137,7 +137,7 @@ export default function EditDealPage() {
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>Update Deal Information</CardTitle>
-          <CardDescription>Modify the details for "{formData.title}".</CardDescription>
+          <CardDescription>Modify the details for {`"{formData.title}"`}.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">

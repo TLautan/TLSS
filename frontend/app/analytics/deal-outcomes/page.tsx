@@ -46,7 +46,7 @@ export default function DealOutcomesPage() {
         <Card>
           <CardHeader>
             <CardTitle>Top Win Reasons</CardTitle>
-            <CardDescription>{`What's driving successful deals?`}</CardDescription>
+            <CardDescription>What{`'`}s driving successful deals?</CardDescription>
           </CardHeader>
           <CardContent>
             {data?.win_reasons && data.win_reasons.length > 0 ? (
