@@ -54,6 +54,13 @@ interface UserData {
   password?: string;
 }
 
+interface UserUpdateData {
+    name?: string;
+    name_kana?: string;
+    email?: string;
+    password?: string;
+}
+
 export const createUser = async (userData: UserData) => {
   const response = await apiClient.post('/users/', userData);
   return response.data;
@@ -62,6 +69,20 @@ export const createUser = async (userData: UserData) => {
 export const getUsers = async (params?: { skip?: number; limit?: number }): Promise<User[]> => {
     const response = await apiClient.get('/users/', { params });
     return response.data;
+};
+
+export const getUser = async (userId: number): Promise<User> => {
+    const response = await apiClient.get(`/users/${userId}`);
+    return response.data;
+};
+
+export const updateUser = async (userId: number, userData: UserUpdateData): Promise<User> => {
+    const response = await apiClient.put(`/users/${userId}`, userData);
+    return response.data;
+};
+
+export const deleteUser = async (userId: number): Promise<void> => {
+    await apiClient.delete(`/users/${userId}`);
 };
 
 // --- Companies ---
@@ -109,6 +130,17 @@ interface DealData {
   closed_at?: string | null;
 }
 
+interface DealUpdateData {
+    title?: string;
+    value?: number;
+    type?: string;
+    status?: 'in_progress' | 'won' | 'lost' | 'cancelled';
+    user_id?: number;
+    company_id?: number;
+    lead_source?: string;
+    product_name?: string;
+    forecast_accuracy?: string;
+}
 
 export const createDeal = async (dealData: DealData) => {
   const response = await apiClient.post('/deals/', dealData);
@@ -123,6 +155,15 @@ export const getDeals = async (params?: { skip?: number; limit?: number }): Prom
 export const getDeal = async (dealId: number): Promise<Deal> => {
   const response = await apiClient.get(`/deals/${dealId}`);
   return response.data;
+};
+
+export const updateDeal = async (dealId: number, dealData: DealUpdateData): Promise<Deal> => {
+    const response = await apiClient.put(`/deals/${dealId}`, dealData);
+    return response.data;
+};
+
+export const deleteDeal = async (dealId: number): Promise<void> => {
+    await apiClient.delete(`/deals/${dealId}`);
 };
 
 // --- Activities ---

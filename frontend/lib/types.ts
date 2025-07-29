@@ -4,6 +4,7 @@
 export interface User {
   id: number;
   name: string;
+  name_kana: string
   email: string;
   created_at: string;
   updated_at: string;
