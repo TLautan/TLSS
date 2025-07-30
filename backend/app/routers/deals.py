@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status # type: ignore
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from app import security, schemas
+from app import security, schemas, models
 from app.crud import crud_deal
 from app.database import get_db
 

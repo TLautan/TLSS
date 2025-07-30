@@ -6,7 +6,7 @@ from app.database import get_db
 from app.services import analytics_service
 from app.schemas import analytics as analytics_schema
 from app.schemas.churn import MonthlyDataPayload
-from app import security
+from app import security, models
 
 router = APIRouter(
     prefix="/analytics",

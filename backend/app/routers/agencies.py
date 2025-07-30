@@ -6,7 +6,7 @@ from typing import List
 from app.schemas import agency as agency_schema
 from app.crud import crud_agency
 from app.database import get_db
-from app import security
+from app import security, models
 
 router = APIRouter(
     prefix="/agencies",

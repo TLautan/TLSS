@@ -6,7 +6,7 @@ from typing import List
 from app.schemas import company as company_schema
 from app.crud import crud_company
 from app.database import get_db
-from app import security
+from app import security, models
 
 # Dependency to get a database session
 
