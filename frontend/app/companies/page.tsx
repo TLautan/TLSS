@@ -118,10 +118,10 @@ export default function CompaniesListPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => router.push(`/companies/${company.id}/edit`)}>
-                              Edit
+                              編集
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => openDeleteDialog(company)} className="text-destructive">
-                              Delete
+                              削除
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -145,7 +145,7 @@ export default function CompaniesListPage() {
        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the company
               <span className="font-bold"> {companyToDelete?.company_name}</span>.

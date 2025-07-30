@@ -158,7 +158,7 @@ export default function DealsListPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">取引一覧 (Deals List)</h1>
-          <p className="text-muted-foreground">Search, filter, and manage your sales deals.</p>
+          <p className="text-muted-foreground">販売取引を検索、フィルタリング、管理します。</p>
         </div>
         <Link href="/register/deal">
           <Button>+ Register New Deal</Button>
@@ -179,11 +179,11 @@ export default function DealsListPage() {
                       <SelectValue placeholder="Filter by Status" />
                   </SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="all">全ステータス</SelectItem>
+                      <SelectItem value="in_progress">進行中</SelectItem>
                       <SelectItem value="won">Won</SelectItem>
                       <SelectItem value="lost">Lost</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                      <SelectItem value="cancelled">キャンセル</SelectItem>
                   </SelectContent>
               </Select>
                <Select value={String(filters.user_id || 'all')} onValueChange={value => handleFilterChange('user_id', value)}>
@@ -191,7 +191,7 @@ export default function DealsListPage() {
                       <SelectValue placeholder="Filter by User" />
                   </SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="all">All Users</SelectItem>
+                      <SelectItem value="all">ユーザー一覧</SelectItem>
                       {users.map(user => <SelectItem key={user.id} value={String(user.id)}>{user.name}</SelectItem>)}
                   </SelectContent>
               </Select>
@@ -200,31 +200,31 @@ export default function DealsListPage() {
                       <SelectValue placeholder="Filter by Company" />
                   </SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="all">All Companies</SelectItem>
+                      <SelectItem value="all">会社一覧</SelectItem>
                       {companies.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.company_name}</SelectItem>)}
                   </SelectContent>
               </Select>
               <Button variant="ghost" onClick={clearFilters}>
                   <X className="mr-2 h-4 w-4" />
-                  Clear Filters
+                  フィルタリセット
               </Button>
           </CardContent>
       </Card>
       
       <Card>
         <CardContent className="pt-6">
-          {loading && <p>Loading deals...</p>}
+          {loading && <p>ロード中</p>}
           {error && <p className="text-destructive">{error}</p>}
           {!loading && !error && (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Deal Title</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Sales Rep</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Value</TableHead>
-                  <TableHead className="text-center">Actions</TableHead>
+                  <TableHead>取引名</TableHead>
+                  <TableHead>会社</TableHead>
+                  <TableHead>代表の方</TableHead>
+                  <TableHead>ステータス</TableHead>
+                  <TableHead className="text-right">バリュー</TableHead>
+                  <TableHead className="text-center">活動</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -244,23 +244,23 @@ export default function DealsListPage() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
+                              <span className="sr-only">メニュー</span>
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => router.push(`/deals/${deal.id}`)}>
-                              View Details
+                              詳細
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setSelectedDealForActivity(deal)}>
-                              Add Activity
+                              追加
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => router.push(`/deals/${deal.id}/edit`)}>
-                              Edit Deal
+                              編集
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => openDeleteDialog(deal)} className="text-destructive">
-                              Delete Deal
+                              削除
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -270,7 +270,7 @@ export default function DealsListPage() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                      No deals found matching the current filters.
+                      現在のフィルターに一致する取引は見つかりませんでした。
                     </TableCell>
                   </TableRow>
                 )}
@@ -284,9 +284,9 @@ export default function DealsListPage() {
       <Dialog open={!!selectedDealForActivity} onOpenChange={(isOpen) => !isOpen && setSelectedDealForActivity(null)}>
           <DialogContent>
               <DialogHeader>
-                  <DialogTitle>Add Activity for: {selectedDealForActivity?.title}</DialogTitle>
+                  <DialogTitle>活動追加: {selectedDealForActivity?.title}</DialogTitle>
                   <DialogDescription>
-                  Log a new phone call, email, or meeting for this deal.
+                  この取引に関する新しい電話、電子メール、または会議を記録します。
                   </DialogDescription>
               </DialogHeader>
               {selectedDealForActivity && <ActivityFormModal dealId={selectedDealForActivity.id} onSuccess={handleActivitySuccess} />}
@@ -297,9 +297,9 @@ export default function DealsListPage() {
        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the deal
+              取引情報が削除されます。
               <span className="font-bold"> {`"`}{dealToDelete?.title}{`"`}</span>.
             </AlertDialogDescription>
           </AlertDialogHeader>

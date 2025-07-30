@@ -63,7 +63,7 @@ export default function CompanyDetailPage() {
         <div>
           <h1 className="text-3xl font-bold">{company.company_name}</h1>
           <p className="text-muted-foreground">
-            {company.industry} 業務内容
+            業務内容：{company.industry}
           </p>
         </div>
         <Button onClick={() => router.push(`/companies/${company.id}/edit`)}>編集</Button>

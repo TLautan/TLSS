@@ -136,7 +136,7 @@ export default function AgenciesListPage() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the agency
               <span className="font-bold"> {agencyToDelete?.agency_name}</span>.
