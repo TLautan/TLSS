@@ -192,6 +192,15 @@ interface AgencyData {
   notes?: string;
 }
 
+interface AgencyUpdateData {
+    agency_name?: string;
+    agency_kana?: string;
+    contact_person?: string;
+    contact_email?: string;
+    contact_phone?: string;
+    notes?: string;
+}
+
 export const createAgency = async (agencyData: AgencyData) => {
   const response = await apiClient.post('/agencies/', agencyData);
   return response.data;
@@ -200,6 +209,20 @@ export const createAgency = async (agencyData: AgencyData) => {
 export const getAgencies = async (params?: { skip?: number; limit?: number }): Promise<Agency[]> => {
     const response = await apiClient.get('/agencies/', { params });
     return response.data;
+};
+
+export const getAgency = async (agencyId: number): Promise<Agency> => {
+    const response = await apiClient.get(`/agencies/${agencyId}`);
+    return response.data;
+};
+
+export const updateAgency = async (agencyId: number, agencyData: AgencyUpdateData): Promise<Agency> => {
+    const response = await apiClient.put(`/agencies/${agencyId}`, agencyData);
+    return response.data;
+};
+
+export const deleteAgency = async (agencyId: number): Promise<void> => {
+    await apiClient.delete(`/agencies/${agencyId}`);
 };
 
 // --- Importer ---

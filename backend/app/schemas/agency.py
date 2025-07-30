@@ -1,7 +1,7 @@
 # backend/app/schemas/agency.py
 
-from pydantic import BaseModel, EmailStr
-from typing import Optional
+from pydantic import BaseModel, EmailStr # type: ignore
+from typing import Optional, Dict, Any
 from datetime import datetime
 
 # Base schema with all common fields
@@ -11,7 +11,7 @@ class AgencyBase(BaseModel):
     contact_person: Optional[str] = None
     contact_email: Optional[EmailStr] = None
     contact_phone: Optional[str] = None
-    notes: Optional[str] = None
+    notes: Optional[Dict[str, Any]] = None
 
 # Schema for creating a new agency
 class AgencyCreate(AgencyBase):

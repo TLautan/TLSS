@@ -1,8 +1,8 @@
 # backend/app/models/agency.py
 
 from sqlalchemy import Column, Integer, String, Text, DateTime
-from sqlalchemy.sql import func # Import func for current timestamp defaults
-from app.database import Base # Ensure this import path is correct
+from sqlalchemy.sql import func
+from app.database import Base
 
 class Agency(Base):
     __tablename__ = "agencies"

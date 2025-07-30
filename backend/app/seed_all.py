@@ -3,7 +3,7 @@
 import random
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from faker import Faker
+from faker import Faker # type: ignore
 
 from app.database import SessionLocal
 from app import models, crud
