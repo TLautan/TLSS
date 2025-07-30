@@ -85,6 +85,7 @@ export const deleteUser = async (userId: number): Promise<void> => {
     await apiClient.delete(`/users/${userId}`);
 };
 
+
 // --- Companies ---
 export const getCompanies = async (params?: { skip?: number; limit?: number }): Promise<Company[]> => {
     const response = await apiClient.get('/companies/', { params });
@@ -142,12 +143,21 @@ interface DealUpdateData {
     forecast_accuracy?: string;
 }
 
+export interface DealFilters {
+    skip?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    user_id?: number;
+    company_id?: number;
+}
+
 export const createDeal = async (dealData: DealData) => {
   const response = await apiClient.post('/deals/', dealData);
   return response.data;
 };
 
-export const getDeals = async (params?: { skip?: number; limit?: number }): Promise<Deal[]> => {
+export const getDeals = async (params?: DealFilters): Promise<Deal[]> => {
   const response = await apiClient.get('/deals/', { params });
   return response.data;
 };
@@ -262,10 +272,3 @@ export interface FastAPIErrorResponse {
 export interface SimpleErrorResponse {
   message: string;
 }
-
-// Add other functions for POST, PUT, DELETE as needed
-// For example:
-// export const createCompany = (companyData) => {
-//   return apiClient.post('/companies/', companyData);
-// };
-

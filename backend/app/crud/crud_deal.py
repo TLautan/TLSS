@@ -13,18 +13,38 @@ def get_deal(db: Session, deal_id: int) -> Optional[models.deal.Deal]:
     """
     return db.query(models.deal.Deal).filter(models.deal.Deal.id == deal_id).first()
 
-def get_deals(db: Session, skip: int = 0, limit: int = 100) -> List[models.deal.Deal]:
+def get_deals(
+    db: Session, 
+    skip: int = 0, 
+    limit: int = 100,
+    search: Optional[str] = None,
+    status: Optional[str] = None,
+    user_id: Optional[int] = None,
+    company_id: Optional[int] = None
+) -> List[models.deal.Deal]:
     """
-    Retrieve a list of all deals with pagination, and eagerly load
-    the related user and company data to prevent extra queries.
+    Retrieve a list of deals with pagination and filtering.
     """
-    return (
-        db.query(models.deal.Deal)
-        .options(joinedload(models.deal.Deal.user), joinedload(models.deal.Deal.company))
-        .offset(skip)
-        .limit(limit)
-        .all()
+    query = db.query(models.deal.Deal).options(
+        joinedload(models.deal.Deal.user), 
+        joinedload(models.deal.Deal.company)
     )
+
+    # Apply filters if they are provided
+    if search:
+        query = query.filter(models.deal.Deal.title.ilike(f"%{search}%"))
+    
+    if status:
+        query = query.filter(models.deal.Deal.status == status)
+
+    if user_id:
+        query = query.filter(models.deal.Deal.user_id == user_id)
+        
+    if company_id:
+        query = query.filter(models.deal.Deal.company_id == company_id)
+
+    return query.offset(skip).limit(limit).all()
+
 
 def get_deals_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> List[models.deal.Deal]:
     """

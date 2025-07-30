@@ -1,16 +1,18 @@
 // frontend/app/deals/page.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getDeals, deleteDeal } from '@/lib/api';
+import { getDeals, deleteDeal, getUsers, getCompanies, DealFilters } from '@/lib/api';
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from '@/components/ui/badge';
-import { Deal } from '@/lib/types';
-import { MoreHorizontal } from 'lucide-react';
+import { Deal, User, Company } from '@/lib/types';
+import { MoreHorizontal, X } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
@@ -32,8 +34,36 @@ import {
 import { ActivityFormModal } from '@/features/activities/components/activity-form-modal';
 
 
+// Custom hook for debouncing
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+  return debouncedValue;
+};
+
+
 export default function DealsListPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  
+  // State for filters
+  const [filters, setFilters] = useState<Omit<DealFilters, 'skip' | 'limit'>>({
+      search: '',
+      status: '',
+      user_id: undefined,
+      company_id: undefined,
+  });
+  const debouncedSearch = useDebounce(filters.search || '', 500);
+
+  // State for modals and dialogs
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDealForActivity, setSelectedDealForActivity] = useState<Deal | null>(null);
@@ -41,10 +71,32 @@ export default function DealsListPage() {
   const [dealToDelete, setDealToDelete] = useState<Deal | null>(null);
   const router = useRouter();
 
-  const fetchData = async () => {
+  // Fetch initial data for filters
+  useEffect(() => {
+      const fetchFilterData = async () => {
+          try {
+              const [usersData, companiesData] = await Promise.all([getUsers(), getCompanies()]);
+              setUsers(usersData);
+              setCompanies(companiesData);
+          } catch (err) {
+              setError('Failed to load filter data (users and companies).');
+              console.error(err);
+          }
+      };
+      fetchFilterData();
+  }, []);
+
+  // Fetch deals whenever filters change
+  const fetchDeals = useCallback(async () => {
     try {
       setLoading(true);
-      const dealsData = await getDeals();
+      const activeFilters: DealFilters = { ...filters };
+      if (!activeFilters.search) delete activeFilters.search;
+      if (!activeFilters.status) delete activeFilters.status;
+      if (!activeFilters.user_id) delete activeFilters.user_id;
+      if (!activeFilters.company_id) delete activeFilters.company_id;
+
+      const dealsData = await getDeals(activeFilters);
       setDeals(dealsData);
     } catch (err) {
       setError('Failed to load deals.');
@@ -52,15 +104,33 @@ export default function DealsListPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+  
+  useEffect(() => {
+      const newFilters = { ...filters, search: debouncedSearch };
+      setFilters(newFilters);
+  }, [debouncedSearch]);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchDeals();
+  }, [fetchDeals]);
   
+  const handleFilterChange = (key: keyof typeof filters, value: string | number) => {
+      setFilters(prev => ({ ...prev, [key]: value === 'all' ? undefined : value }));
+  };
+
+  const clearFilters = () => {
+      setFilters({
+          search: '',
+          status: '',
+          user_id: undefined,
+          company_id: undefined,
+      });
+  };
+
   const handleActivitySuccess = () => {
       setSelectedDealForActivity(null);
-      fetchData();
+      fetchDeals();
   }
 
   const openDeleteDialog = (deal: Deal) => {
@@ -75,7 +145,7 @@ export default function DealsListPage() {
       await deleteDeal(dealToDelete.id);
       setShowDeleteDialog(false);
       setDealToDelete(null);
-      fetchData(); 
+      fetchDeals(); 
     } catch (err) {
       setError(`Failed to delete deal: ${dealToDelete.title}`);
       console.error(err);
@@ -88,12 +158,58 @@ export default function DealsListPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">取引一覧 (Deals List)</h1>
-          <p className="text-muted-foreground">Manage and track your sales deals.</p>
+          <p className="text-muted-foreground">Search, filter, and manage your sales deals.</p>
         </div>
         <Link href="/register/deal">
           <Button>+ Register New Deal</Button>
         </Link>
       </div>
+
+      {/* Filter Controls */}
+      <Card>
+          <CardContent className="pt-6 flex flex-wrap items-center gap-4">
+              <Input
+                  placeholder="Search by deal title..."
+                  value={filters.search}
+                  onChange={e => handleFilterChange('search', e.target.value)}
+                  className="max-w-sm"
+              />
+              <Select value={filters.status} onValueChange={value => handleFilterChange('status', value)}>
+                  <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="won">Won</SelectItem>
+                      <SelectItem value="lost">Lost</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+              </Select>
+               <Select value={String(filters.user_id || 'all')} onValueChange={value => handleFilterChange('user_id', value)}>
+                  <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by User" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all">All Users</SelectItem>
+                      {users.map(user => <SelectItem key={user.id} value={String(user.id)}>{user.name}</SelectItem>)}
+                  </SelectContent>
+              </Select>
+               <Select value={String(filters.company_id || 'all')} onValueChange={value => handleFilterChange('company_id', value)}>
+                  <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by Company" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all">All Companies</SelectItem>
+                      {companies.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.company_name}</SelectItem>)}
+                  </SelectContent>
+              </Select>
+              <Button variant="ghost" onClick={clearFilters}>
+                  <X className="mr-2 h-4 w-4" />
+                  Clear Filters
+              </Button>
+          </CardContent>
+      </Card>
       
       <Card>
         <CardContent className="pt-6">
@@ -154,7 +270,7 @@ export default function DealsListPage() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                      No deals found.
+                      No deals found matching the current filters.
                     </TableCell>
                   </TableRow>
                 )}
@@ -184,7 +300,7 @@ export default function DealsListPage() {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the deal
-              <span className="font-bold">  {`"{dealToDelete?.title}"`}</span>.
+              <span className="font-bold"> {`"`}{dealToDelete?.title}{`"`}</span>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
