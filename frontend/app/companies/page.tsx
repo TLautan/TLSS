@@ -1,5 +1,4 @@
 // frontend/app/companies/page.tsx
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -21,15 +20,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Company } from '@/lib/types';
 
-
-// Define the type for the company data
-interface Company {
-  id: number;
-  company_name: string;
-  industry: string;
-  created_at: string;
-}
 
 export default function CompaniesListPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -108,7 +100,12 @@ export default function CompaniesListPage() {
                 {companies.length > 0 ? (
                   companies.map((company) => (
                     <TableRow key={company.id}>
-                      <TableCell className="font-medium">{company.company_name}</TableCell>
+                      <TableCell className="font-medium">
+                        {/* UPDATED: Company name is now a link */}
+                        <Link href={`/companies/${company.id}`} className="hover:underline">
+                          {company.company_name}
+                        </Link>
+                      </TableCell>
                       <TableCell>{company.industry}</TableCell>
                       <TableCell>{new Date(company.created_at).toLocaleDateString()}</TableCell>
                       <TableCell className="text-right">

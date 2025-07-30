@@ -17,6 +17,7 @@ export interface Company {
   industry: string;
   created_at: string;
   updated_at: string;
+  deals?: Deal[];
 }
 
 // Defines the structure for the Deal object
