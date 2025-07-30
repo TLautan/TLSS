@@ -147,7 +147,7 @@ export default function CompaniesListPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the company
+              会社情報が削除されます。
               <span className="font-bold"> {companyToDelete?.company_name}</span>.
             </AlertDialogDescription>
           </AlertDialogHeader>

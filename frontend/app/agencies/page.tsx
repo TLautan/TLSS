@@ -90,7 +90,7 @@ export default function AgenciesListPage() {
                   <TableHead>代理店名 (Agency Name)</TableHead>
                   <TableHead>担当者 (Contact Person)</TableHead>
                   <TableHead>連絡先メール (Contact Email)</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right">活動</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -104,7 +104,7 @@ export default function AgenciesListPage() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
+                              <span className="sr-only">メニュー</span>
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -138,7 +138,7 @@ export default function AgenciesListPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the agency
+              代理店情報が削除されます。
               <span className="font-bold"> {agencyToDelete?.agency_name}</span>.
             </AlertDialogDescription>
           </AlertDialogHeader>
