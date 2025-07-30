@@ -1,7 +1,7 @@
 # backend/app/crud/crud_user.py
 
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
+from passlib.context import CryptContext # type: ignore
 from app import models
 from app.schemas import user as user_schema
 
