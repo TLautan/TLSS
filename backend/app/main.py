@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI # type: ignore
 from fastapi.middleware.cors import CORSMiddleware # type: ignore
-from app.routers import analytics, companies, users, agencies, activities, deals, importer
+from app.routers import analytics, companies, users, agencies, activities, deals, importer, auth
 
 app = FastAPI(title="営業管理システム")
 
@@ -20,6 +20,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth.router, prefix="/api")
 
 app.include_router(analytics.router, prefix="/api")
 app.include_router(companies.router, prefix="/api")

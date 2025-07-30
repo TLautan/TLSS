@@ -1,11 +1,10 @@
 # backend/app/routers/importer.py
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status # type: ignore
 from sqlalchemy.orm import Session
 from typing import List
-
 from app.database import get_db
-from app import crud, schemas
+from app import crud, schemas, security
 
 router = APIRouter(
     prefix="/importer",
@@ -15,7 +14,8 @@ router = APIRouter(
 @router.post("/deals", status_code=status.HTTP_201_CREATED)
 def import_deals_from_csv(
     deals: List[schemas.deal.DealCreate],
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
 ):
     """
     Accepts a list of deals (parsed from a CSV on the frontend)

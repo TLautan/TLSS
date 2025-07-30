@@ -6,7 +6,7 @@ from typing import List
 from app.schemas import company as company_schema
 from app.crud import crud_company
 from app.database import get_db
-from app.database import SessionLocal
+from app import security
 
 # Dependency to get a database session
 
@@ -16,7 +16,11 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=company_schema.Company, status_code=201)
-def create_new_company(company: company_schema.CompanyCreate, db: Session = Depends(get_db)):
+def create_new_company(
+    company: company_schema.CompanyCreate,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Create a new company.
     - Checks if a company with the same name already exists.
@@ -27,7 +31,12 @@ def create_new_company(company: company_schema.CompanyCreate, db: Session = Depe
     return crud_company.create_company(db=db, company=company)
 
 @router.get("/", response_model=List[company_schema.Company])
-def read_all_companies(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_all_companies(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Retrieve a list of all companies with pagination.
     """
@@ -35,7 +44,11 @@ def read_all_companies(skip: int = 0, limit: int = 100, db: Session = Depends(ge
     return companies
 
 @router.get("/{company_id}", response_model=company_schema.Company)
-def read_single_company(company_id: int, db: Session = Depends(get_db)):
+def read_single_company(
+    company_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Retrieve a single company by its ID.
     """
@@ -45,7 +58,12 @@ def read_single_company(company_id: int, db: Session = Depends(get_db)):
     return db_company
 
 @router.put("/{company_id}", response_model=company_schema.Company)
-def update_existing_company(company_id: int, company_update: company_schema.CompanyUpdate, db: Session = Depends(get_db)):
+def update_existing_company(
+    company_id: int,
+    company_update: company_schema.CompanyUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Update a company's details.
     """
@@ -55,7 +73,11 @@ def update_existing_company(company_id: int, company_update: company_schema.Comp
     return crud_company.update_company(db=db, db_company=db_company, company_update=company_update)
 
 @router.delete("/{company_id}", response_model=company_schema.Company)
-def delete_existing_company(company_id: int, db: Session = Depends(get_db)):
+def delete_existing_company(
+    company_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Delete a company.
     """

@@ -1,9 +1,12 @@
+# backend/app/routers/users.py
+
 from fastapi import Depends, HTTPException, APIRouter # type: ignore
 from sqlalchemy.orm import Session
 from typing import List
 from app.schemas import user as user_schema
 from app.crud import crud_user
 from app.database import get_db
+from app import security
 
 # Dependency to get a database session
 
@@ -13,7 +16,10 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=user_schema.User, status_code=201)
-def create_new_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
+def create_new_user(
+    user: user_schema.UserCreate,
+    db: Session = Depends(get_db),
+    ):
     """
     Create a new user. Checks for existing email.
     """
@@ -23,7 +29,12 @@ def create_new_user(user: user_schema.UserCreate, db: Session = Depends(get_db))
     return crud_user.create_user(db=db, user=user)
 
 @router.get("/", response_model=List[user_schema.User])
-def read_all_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_all_users(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Retrieve a list of all users.
     """
@@ -31,7 +42,11 @@ def read_all_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
     return users
 
 @router.get("/{user_id}", response_model=user_schema.User)
-def read_single_user(user_id: int, db: Session = Depends(get_db)):
+def read_single_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Retrieve a single user by their ID.
     """
@@ -41,7 +56,12 @@ def read_single_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 @router.put("/{user_id}", response_model=user_schema.User)
-def update_existing_user(user_id: int, user_update: user_schema.UserUpdate, db: Session = Depends(get_db)):
+def update_existing_user(
+    user_id: int,
+    user_update: user_schema.UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Update a user's details.
     """
@@ -51,7 +71,11 @@ def update_existing_user(user_id: int, user_update: user_schema.UserUpdate, db: 
     return crud_user.update_user(db=db, db_user=db_user, user_update=user_update)
 
 @router.delete("/{user_id}", response_model=user_schema.User)
-def delete_existing_user(user_id: int, db: Session = Depends(get_db)):
+def delete_existing_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Delete a user.
     """

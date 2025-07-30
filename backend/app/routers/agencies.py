@@ -6,6 +6,7 @@ from typing import List
 from app.schemas import agency as agency_schema
 from app.crud import crud_agency
 from app.database import get_db
+from app import security
 
 router = APIRouter(
     prefix="/agencies",
@@ -13,7 +14,11 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=agency_schema.Agency, status_code=201)
-def create_new_agency(agency: agency_schema.AgencyCreate, db: Session = Depends(get_db)):
+def create_new_agency(
+    agency: agency_schema.AgencyCreate,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Create a new agency.
     """
@@ -23,7 +28,12 @@ def create_new_agency(agency: agency_schema.AgencyCreate, db: Session = Depends(
     return crud_agency.create_agency(db=db, agency=agency)
 
 @router.get("/", response_model=List[agency_schema.Agency])
-def read_all_agencies(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_all_agencies(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Retrieve a list of all agencies.
     """
@@ -31,7 +41,11 @@ def read_all_agencies(skip: int = 0, limit: int = 100, db: Session = Depends(get
     return agencies
 
 @router.get("/{agency_id}", response_model=agency_schema.Agency)
-def read_single_agency(agency_id: int, db: Session = Depends(get_db)):
+def read_single_agency(
+    agency_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Retrieve an single agency by their ID.
     """
@@ -41,7 +55,12 @@ def read_single_agency(agency_id: int, db: Session = Depends(get_db)):
     return db_agency
 
 @router.put("/{agency_id}", response_model=agency_schema.Agency)
-def update_existing_agency(agency_id: int, agency_update: agency_schema.AgencyUpdate, db: Session = Depends(get_db)):
+def update_existing_agency(
+    agency_id: int,
+    agency_update: agency_schema.AgencyUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Update an agency's details.
     """
@@ -51,7 +70,11 @@ def update_existing_agency(agency_id: int, agency_update: agency_schema.AgencyUp
     return crud_agency.update_agency(db=db, db_agency=db_agency, agency_update=agency_update)
 
 @router.delete("/{agency_id}", response_model=agency_schema.Agency)
-def delete_existing_agency(agency_id: int, db: Session = Depends(get_db)):
+def delete_existing_agency(
+    agency_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Delete an agency.
     """

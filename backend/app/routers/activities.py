@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status # type: ignore
 from sqlalchemy.orm import Session
 from typing import List
-from app import crud, schemas, models
+from app import crud, schemas, security
 from app.database import get_db
 
 router = APIRouter(
@@ -14,7 +14,8 @@ router = APIRouter(
 def create_activity_for_deal(
     deal_id: int, 
     activity_in: schemas.activity.ActivityBase,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
 ):
     """
     Create a new activity for a specific deal.
@@ -31,7 +32,8 @@ def read_activities_for_deal(
     deal_id: int, 
     db: Session = Depends(get_db), 
     skip: int = 0, 
-    limit: int = 100
+    limit: int = 100,
+    current_user: models.user.User = Depends(security.get_current_user),
 ):
     """
     Retrieve all activities for a specific deal.

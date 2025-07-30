@@ -1,9 +1,10 @@
 # backend/app/routers/deals.py
+
 from fastapi import APIRouter, Depends, HTTPException, status # type: ignore
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from app import models, schemas
-from app.crud import crud_deal, crud_user, crud_company
+from app import security, schemas
+from app.crud import crud_deal
 from app.database import get_db
 
 router = APIRouter(
@@ -19,7 +20,8 @@ def read_all_deals(
     search: Optional[str] = None,
     status: Optional[str] = None,
     user_id: Optional[int] = None,
-    company_id: Optional[int] = None
+    company_id: Optional[int] = None,
+    current_user: models.user.User = Depends(security.get_current_user),
 ):
     """
     Retrieve a list of all deals with optional pagination and filtering.
@@ -36,14 +38,22 @@ def read_all_deals(
     return deals
 
 @router.post("/", response_model=schemas.deal.Deal, status_code=status.HTTP_201_CREATED)
-def create_new_deal(deal: schemas.deal.DealCreate, db: Session = Depends(get_db)):
+def create_new_deal(
+    deal: schemas.deal.DealCreate,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Create a new deal.
     """
     return crud_deal.create_deal(db=db, deal=deal)
 
 @router.get("/{deal_id}", response_model=schemas.deal.Deal)
-def read_deal_by_id(deal_id: int, db: Session = Depends(get_db)):
+def read_deal_by_id(
+    deal_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Retrieve a single deal by its ID.
     """
@@ -53,7 +63,12 @@ def read_deal_by_id(deal_id: int, db: Session = Depends(get_db)):
     return db_deal
 
 @router.put("/{deal_id}", response_model=schemas.deal.Deal)
-def update_existing_deal(deal_id: int, deal_update: schemas.deal.DealUpdate, db: Session = Depends(get_db)):
+def update_existing_deal(
+    deal_id: int,
+    deal_update: schemas.deal.DealUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Update an existing deal.
     """
@@ -64,7 +79,11 @@ def update_existing_deal(deal_id: int, deal_update: schemas.deal.DealUpdate, db:
     return crud_deal.update_deal(db, db_deal=db_deal, deal_update=deal_update)
 
 @router.delete("/{deal_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_existing_deal(deal_id: int, db: Session = Depends(get_db)):
+def delete_existing_deal(
+    deal_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Delete a deal.
     """
