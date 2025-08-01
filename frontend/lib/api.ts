@@ -1,10 +1,38 @@
 // frontend/lib/api.ts
+
 import axios from 'axios';
 import { Deal, User, DashboardData, Agency, Company, Activity, DealOutcomesData } from './types';
 
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
 });
+
+// --- Authentication ---
+export interface LoginData {
+    username: string; // This corresponds to the email
+    password: string;
+}
+
+interface TokenResponse {
+    access_token: string;
+    token_type: string;
+}
+
+export const login = async (data: LoginData): Promise<TokenResponse> => {
+    const formData = new URLSearchParams();
+    formData.append('username', data.username);
+    formData.append('password', data.password);
+
+    const response = await apiClient.post('/auth/token', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+    return response.data;
+};
+
+export const getCurrentUser = async (): Promise<User> => {
+    const response = await apiClient.get('/users/me');
+    return response.data;
+}
 
 // --- Analytics ---
 

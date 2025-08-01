@@ -1,6 +1,6 @@
 # backend/app/routers/users.py
 
-from fastapi import Depends, HTTPException, APIRouter # type: ignore
+from fastapi import Depends, HTTPException, APIRouter
 from sqlalchemy.orm import Session
 from typing import List
 from app.schemas import user as user_schema
@@ -83,3 +83,12 @@ def delete_existing_user(
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
+
+@router.get("/me", response_model=user_schema.User)
+def read_users_me(
+    current_user: models.user.User = Depends(security.get_current_user)
+    ):
+    """
+    Get the current logged-in user.
+    """
+    return current_user

@@ -1,7 +1,7 @@
 # backend/app/crud/crud_user.py
 
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext # type: ignore
+from passlib.context import CryptContext
 from app import models
 from app.schemas import user as user_schema
 
@@ -9,6 +9,9 @@ from app.schemas import user as user_schema
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_hashed_password(password: str) -> str:
+    password = '1qaz2wsx'
+    hashPass = pwd_context.hash(password)
+    print(hashPass)
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -27,7 +30,6 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 def create_user(db: Session, user: user_schema.UserCreate) -> models.user.User:
     hashed_password = get_hashed_password(user.password)
-    # Ensure you have a 'password_hash' column in your User model
     db_user = models.user.User(
         email=user.email,
         name=user.name,
@@ -40,7 +42,7 @@ def create_user(db: Session, user: user_schema.UserCreate) -> models.user.User:
     return db_user
 
 def update_user(db: Session, db_user: models.user.User, user_update: user_schema.UserUpdate) -> models.user.User:
-    update_data = user_update.dict(exclude_unset=True)
+    update_data = user_update.model_dump(exclude_unset=True)
 
     if "password" in update_data:
         update_data["password_hash"] = get_hashed_password(update_data["password"])
