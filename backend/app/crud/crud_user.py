@@ -9,7 +9,7 @@ from app.schemas import user as user_schema
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_hashed_password(password: str) -> str:
-    password = '1qaz2wsx'
+    #password = '1qaz2wsx'
     hashPass = pwd_context.hash(password)
     print(hashPass)
     return pwd_context.hash(password)

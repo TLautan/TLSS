@@ -1,6 +1,6 @@
 # backend/app/routers/users.py
 
-from fastapi import Depends, HTTPException, APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.schemas import user as user_schema
@@ -8,33 +8,36 @@ from app.crud import crud_user
 from app.database import get_db
 from app import security, models
 
-# Dependency to get a database session
-
 router = APIRouter(
     prefix="/users",
     tags=["Users"]
 )
 
 @router.post("/", response_model=user_schema.User, status_code=201)
-def create_new_user(
-    user: user_schema.UserCreate,
-    db: Session = Depends(get_db),
-    ):
+def create_new_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
     """
     Create a new user. Checks for existing email.
+    This endpoint is public and does not require authentication.
     """
     db_user = crud_user.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     return crud_user.create_user(db=db, user=user)
 
+@router.get("/me", response_model=user_schema.User)
+def read_users_me(current_user: models.user.User = Depends(security.get_current_user)):
+    """
+    Get the current logged-in user.
+    """
+    return current_user
+
 @router.get("/", response_model=List[user_schema.User])
 def read_all_users(
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = 0, 
+    limit: int = 100, 
     db: Session = Depends(get_db),
-    current_user: models.user.User = Depends(security.get_current_user),
-    ):
+    current_user: models.user.User = Depends(security.get_current_user)
+):
     """
     Retrieve a list of all users.
     """
@@ -43,10 +46,10 @@ def read_all_users(
 
 @router.get("/{user_id}", response_model=user_schema.User)
 def read_single_user(
-    user_id: int,
+    user_id: int, 
     db: Session = Depends(get_db),
-    current_user: models.user.User = Depends(security.get_current_user),
-    ):
+    current_user: models.user.User = Depends(security.get_current_user)
+):
     """
     Retrieve a single user by their ID.
     """
@@ -57,11 +60,11 @@ def read_single_user(
 
 @router.put("/{user_id}", response_model=user_schema.User)
 def update_existing_user(
-    user_id: int,
-    user_update: user_schema.UserUpdate,
+    user_id: int, 
+    user_update: user_schema.UserUpdate, 
     db: Session = Depends(get_db),
-    current_user: models.user.User = Depends(security.get_current_user),
-    ):
+    current_user: models.user.User = Depends(security.get_current_user)
+):
     """
     Update a user's details.
     """
@@ -72,10 +75,10 @@ def update_existing_user(
 
 @router.delete("/{user_id}", response_model=user_schema.User)
 def delete_existing_user(
-    user_id: int,
+    user_id: int, 
     db: Session = Depends(get_db),
-    current_user: models.user.User = Depends(security.get_current_user),
-    ):
+    current_user: models.user.User = Depends(security.get_current_user)
+):
     """
     Delete a user.
     """
@@ -83,12 +86,3 @@ def delete_existing_user(
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
-
-@router.get("/me", response_model=user_schema.User)
-def read_users_me(
-    current_user: models.user.User = Depends(security.get_current_user)
-    ):
-    """
-    Get the current logged-in user.
-    """
-    return current_user
