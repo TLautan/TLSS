@@ -64,6 +64,13 @@ class UserPerformance(BaseModel):
     average_days_to_win: float
     activity_summary: Dict[str, int]
 
+class ForecastEntry(BaseModel):
+    month: str
+    projected_revenue: float
+
+    class Config:
+        from_attributes = True
+
 class LeaderboardEntry(BaseModel):
     user_id: int
     user_name: str

@@ -105,3 +105,10 @@ def get_sales_leaderboard_route(db: Session = Depends(get_db)):
     Endpoint to get sales leaderboard data.
     """
     return analytics_service.get_sales_leaderboard(db)
+
+@router.get("/forecast", response_model=List[analytics_schema.ForecastEntry])
+def get_sales_forecast_route(db: Session = Depends(get_db)):
+    """
+    Endpoint to get a simple sales forecast.
+    """
+    return analytics_service.get_sales_forecast(db)

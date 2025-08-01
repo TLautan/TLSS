@@ -124,3 +124,8 @@ export interface LeaderboardEntry {
   deals_won: number;
   average_deal_size: number;
 }
+
+export interface ForecastEntry {
+  month: string;
+  projected_revenue: number;
+}

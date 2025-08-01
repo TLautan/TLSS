@@ -7,7 +7,7 @@ from app.models.deal import Deal
 from app.models.company import Company
 from app.models.user import User
 from app.models.activity import Activity
-from app.models.enums import DealStatus, DealType
+from app.models.enums import DealStatus, DealType, ForecastAccuracy
 from datetime import datetime, timedelta
 
 def get_dashboard_data(db: Session) -> Dict[str, Any]:
@@ -231,6 +231,43 @@ def get_deal_outcome_breakdowns(db: Session) -> List[Dict]:
             "count": row.count,
         }
         for row in query_result
+    ]
+
+def get_sales_forecast(db: Session) -> List[Dict[str, Any]]:
+    """
+    Calculates a simple sales forecast for the next 6 months based on
+    'in_progress' deals and their forecast accuracy.
+    """
+    
+    accuracy_weight = case(
+        (Deal.forecast_accuracy == ForecastAccuracy.high, 0.8),
+        (Deal.forecast_accuracy == ForecastAccuracy.medium, 0.5),
+        (Deal.forecast_accuracy == ForecastAccuracy.low, 0.2),
+        else_=0.0
+    ).label("weight")
+    
+    six_months_ago = datetime.utcnow() - timedelta(days=180)
+
+    forecast_data = (
+        db.query(
+            func.date_trunc('month', Deal.created_at).label('month'),
+            func.sum(Deal.value * accuracy_weight).label("projected_revenue")
+        )
+        .filter(
+            Deal.status == DealStatus.in_progress,
+            Deal.created_at >= six_months_ago
+        )
+        .group_by(func.date_trunc('month', Deal.created_at))
+        .order_by(func.date_trunc('month', Deal.created_at))
+        .all()
+    )
+
+    return [
+        {
+            "month": row.month.strftime("%Y-%m"),
+            "projected_revenue": float(row.projected_revenue or 0)
+        }
+        for row in forecast_data
     ]
 
 def get_sales_leaderboard(db: Session) -> List[Dict[str, Any]]:
