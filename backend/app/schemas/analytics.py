@@ -1,7 +1,7 @@
 # backend/app/schemas/analytics.py
 
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict
 from .deal import Deal
 from .user import User
 
@@ -63,6 +63,15 @@ class UserPerformance(BaseModel):
     user_name: str
     average_days_to_win: float
     activity_summary: Dict[str, int]
+
+class LeaderboardEntry(BaseModel):
+    user_id: int
+    user_name: str
+    total_revenue: float
+    deals_won: int
+    average_deal_size: float
+    class Config:
+        from_attributes = True   
 
 # --- SCHEMAS FOR DEAL OUTCOME ANALYSIS ---
 class ReasonAnalysis(BaseModel):

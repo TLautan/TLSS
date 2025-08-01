@@ -1,7 +1,7 @@
 // frontend/lib/api.ts
 
 import axios from 'axios';
-import { Deal, User, DashboardData, Agency, Company, Activity, DealOutcomesData } from './types';
+import { Deal, User, DashboardData, Agency, Company, Activity, DealOutcomesData, LeaderboardEntry } from './types';
 
 export const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -53,6 +53,11 @@ export const getDealOutcomesData = async (): Promise<DealOutcomesData> => {
 
 export const getDealOutcomeBreakdowns = async () => {
   const response = await apiClient.get('/analytics/outcome-breakdowns');
+  return response.data;
+};
+
+export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
+  const response = await apiClient.get('/analytics/leaderboard');
   return response.data;
 };
 

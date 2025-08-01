@@ -233,6 +233,36 @@ def get_deal_outcome_breakdowns(db: Session) -> List[Dict]:
         for row in query_result
     ]
 
+def get_sales_leaderboard(db: Session) -> List[Dict[str, Any]]:
+    """
+    Calculates sales performance metrics for each user to create a leaderboard.
+    """
+    leaderboard_data = (
+        db.query(
+            User.id.label("user_id"),
+            User.name.label("user_name"),
+            func.sum(Deal.value).label("total_revenue"),
+            func.count(Deal.id).label("deals_won"),
+            func.avg(Deal.value).label("average_deal_size")
+        )
+        .join(Deal, User.id == Deal.user_id)
+        .filter(Deal.status == DealStatus.won)
+        .group_by(User.id, User.name)
+        .order_by(func.sum(Deal.value).desc())
+        .all()
+    )
+    
+    return [
+        {
+            "user_id": row.user_id,
+            "user_name": row.user_name,
+            "total_revenue": float(row.total_revenue or 0),
+            "deals_won": int(row.deals_won or 0),
+            "average_deal_size": float(row.average_deal_size or 0)
+        }
+        for row in leaderboard_data
+    ]
+
 def calculate_monthly_cancellation_rate(db: Session) -> List[Dict[str, Any]]:
     """
     Calculates the monthly cancellation rate of deals.

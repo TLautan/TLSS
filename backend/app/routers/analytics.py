@@ -7,6 +7,7 @@ from app.services import analytics_service
 from app.schemas import analytics as analytics_schema
 from app.schemas.churn import MonthlyDataPayload
 from app import security, models
+from typing import List
 
 router = APIRouter(
     prefix="/analytics",
@@ -97,3 +98,10 @@ def get_deal_outcome_breakdowns(
     Breakitdown yeah break it brekit
     """
     return analytics_service.get_deal_outcome_breakdowns(db)
+
+@router.get("/leaderboard", response_model=List[analytics_schema.LeaderboardEntry])
+def get_sales_leaderboard_route(db: Session = Depends(get_db)):
+    """
+    Endpoint to get sales leaderboard data.
+    """
+    return analytics_service.get_sales_leaderboard(db)

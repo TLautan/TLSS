@@ -116,3 +116,11 @@ export interface DealOutcomesData {
     loss_reasons: ReasonAnalysis[];
     industry_performance: IndustryPerformance[];
 }
+
+export interface LeaderboardEntry {
+  user_id: number;
+  user_name: string;
+  total_revenue: number;
+  deals_won: number;
+  average_deal_size: number;
+}

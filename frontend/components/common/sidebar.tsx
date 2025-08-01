@@ -63,6 +63,7 @@ const Sidebar: React.FC = () => {
     label: "分析 (Analytics)",
     icon: LineChart,
     sublinks: [
+      { href: "/analytics/leaderboard", label: "リーダーボード (Leaderboard)", icon: LineChart },
       { href: "/analytics/overall_analytics/monthly_churn", label: "月次解約率", icon: LineChart },
       { href: "/analytics/deal-outcomes", label: "取引成果分析", icon: LineChart },
     ],
