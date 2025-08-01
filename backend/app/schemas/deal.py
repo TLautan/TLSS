@@ -1,11 +1,11 @@
 # backend/app/schemas/deal.py
+
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
-from typing import Optional
 from app.models.deal import DealStatus, DealType, ForecastAccuracy
-from .user import User as UserSchema
-from .company import Company as CompanySchema
+from .user import User, UserInDBBase
+from .company import Company, CompanyInDBBase
 
 # --- Base Schema ---
 class DealBase(BaseModel):
@@ -26,10 +26,7 @@ class DealBase(BaseModel):
     cancellation_reason: Optional[str] = Field(None, description="Reason for deal cancellation")
 
     class Config:
-        use_enum_values = True 
-        json_encoders = {
-            datetime: lambda v: v.isoformat() if v else None,
-        }
+        use_enum_values = True
 
 # --- Schema for Creating a Deal ---
 class DealCreate(DealBase):
@@ -37,25 +34,20 @@ class DealCreate(DealBase):
 
 # --- Schema for Updating a Deal ---
 class DealUpdate(BaseModel):
-    title: Optional[str] = None
-    value: Optional[float] = None
-    status: Optional[DealStatus] = None
-    type: Optional[DealType] = None
-    user_id: Optional[int] = None
-    company_id: Optional[int] = None
-    lead_source: Optional[str] = None
-    product_name: Optional[str] = None
-    forecast_accuracy: Optional[ForecastAccuracy] = None
+    # Fields for updating...
+    pass
 
-# --- Schema for Reading a Deal ---
+# --- Main Schema for Reading a Deal ---
 class Deal(DealBase):
     id: int
-    status: DealStatus
     lead_generated_at: datetime
     created_at: datetime
     updated_at: datetime
-    user: UserSchema
-    company: CompanySchema
-    
+    user: UserInDBBase
+    company: CompanyInDBBase
+
     class Config:
         from_attributes = True
+
+User.model_rebuild()
+Company.model_rebuild()

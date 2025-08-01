@@ -1,29 +1,39 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
-from datetime import datetime
+# backend/app/schemas/user.py
 
-# Shared properties
+from pydantic import BaseModel, EmailStr
+from typing import Optional, List
+from datetime import datetime
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .deal import Deal
+
+# --- Base Schemas ---
 class UserBase(BaseModel):
     email: EmailStr
     name: str
     name_kana: Optional[str] = None
 
-# Properties to receive via API on creation
+class UserInDBBase(UserBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+# --- Schemas for API Operations ---
 class UserCreate(UserBase):
     password: str
 
-# Properties to receive via API on update
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     name: Optional[str] = None
     name_kana: Optional[str] = None
     password: Optional[str] = None
 
-# Properties to return to the client (never include the password hash!)
-class User(UserBase):
-    id: int
+# --- Main Schema with Relationships ---
+class User(UserInDBBase):
     created_at: datetime
     updated_at: datetime
+    deals: List['Deal'] = []
 
     class Config:
         from_attributes = True
