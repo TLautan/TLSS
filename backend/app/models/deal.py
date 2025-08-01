@@ -14,7 +14,6 @@ class Deal(Base):
     title = Column(String(255), nullable=False)
     value = Column(Numeric(15, 2), nullable=False)
 
-    # Use the imported enums with create_type=False
     status = Column(ENUM(DealStatus, name='deal_status', create_type=False), default=DealStatus.in_progress, nullable=False)
     type = Column(ENUM(DealType, name='deal_type', create_type=False), nullable=False)
     forecast_accuracy = Column(ENUM(ForecastAccuracy, name='forecast_accuracy', create_type=False), nullable=True)
@@ -31,8 +30,8 @@ class Deal(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 
-    user = relationship("User")
-    company = relationship("Company")
+    user = relationship("User", back_populates="deals")
+    company = relationship("Company", back_populates="deals")
 
     def __repr__(self):
         return f"<Deal(id={self.id}, title='{self.title}', status='{self.status.value}')>"
