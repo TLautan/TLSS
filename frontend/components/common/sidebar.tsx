@@ -14,6 +14,7 @@ import {
   Package,
   CreditCard,
   Building,
+  KanbanSquare,
   Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ const Sidebar: React.FC = () => {
 
   const mainLinks: NavLink[] = [
     { href: "/", label: "ダッシュボード", icon: Home },
+    { href: "/pipeline", label: "パイプライン (Pipeline)", icon: KanbanSquare },
     { href: "/users", label: "担当者一覧 (Users)", icon: Users },
     { href: "/companies", label: "会社一覧 (Companies)", icon: Building },
     { href: "/deals", label: "取引一覧 (Deals)", icon: CreditCard },

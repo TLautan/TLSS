@@ -33,7 +33,7 @@ export interface Deal {
   created_at: string;
   updated_at: string;
   user?: User;
-  company?: Company;
+  company: Company;
   lead_source?: string;
   product_name?: string;
   forecast_accuracy?: "高" | "中" | "低";
