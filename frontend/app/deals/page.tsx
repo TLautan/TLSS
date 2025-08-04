@@ -33,8 +33,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ActivityFormModal } from '@/features/activities/components/activity-form-modal';
 
-
-// Custom hook for debouncing
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
@@ -54,7 +52,6 @@ export default function DealsListPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   
-  // State for filters
   const [filters, setFilters] = useState<Omit<DealFilters, 'skip' | 'limit'>>({
       search: '',
       status: '',
@@ -63,7 +60,6 @@ export default function DealsListPage() {
   });
   const debouncedSearch = useDebounce(filters.search || '', 500);
 
-  // State for modals and dialogs
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDealForActivity, setSelectedDealForActivity] = useState<Deal | null>(null);
@@ -71,7 +67,6 @@ export default function DealsListPage() {
   const [dealToDelete, setDealToDelete] = useState<Deal | null>(null);
   const router = useRouter();
 
-  // Fetch initial data for filters
   useEffect(() => {
       const fetchFilterData = async () => {
           try {
@@ -86,7 +81,6 @@ export default function DealsListPage() {
       fetchFilterData();
   }, []);
 
-  // Fetch deals whenever filters change
   const fetchDeals = useCallback(async () => {
     try {
       setLoading(true);
@@ -157,11 +151,11 @@ export default function DealsListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">取引一覧 (Deals List)</h1>
+          <h1 className="text-3xl font-bold">取引一覧</h1>
           <p className="text-muted-foreground">販売取引を検索、フィルタリング、管理します。</p>
         </div>
         <Link href="/register/deal">
-          <Button>+ Register New Deal</Button>
+          <Button>+ 取引登録</Button>
         </Link>
       </div>
 

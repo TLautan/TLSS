@@ -48,7 +48,7 @@ export function NotesSection({ relatedTo, relatedId }: NotesSectionProps) {
         related_id: relatedId,
       });
       setNewNote('');
-      fetchNotes(); // Refresh the notes list
+      fetchNotes();
     } catch (err) {
       setError('Failed to add note. Please try again.');
     }
@@ -57,8 +57,8 @@ export function NotesSection({ relatedTo, relatedId }: NotesSectionProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Notes</CardTitle>
-        <CardDescription>A log of all notes for this item.</CardDescription>
+        <CardTitle>メモ</CardTitle>
+        <CardDescription>このアイテムのすべてのメモのログ。</CardDescription>
       </CardHeader>
       <CardContent>
         {/* New Note Form */}
@@ -74,7 +74,7 @@ export function NotesSection({ relatedTo, relatedId }: NotesSectionProps) {
         </div>
 
         {error && <p className="text-destructive text-center">{error}</p>}
-        {loading && <p className="text-center">Loading notes...</p>}
+        {loading && <p className="text-center">読み込み中</p>}
 
         {/* Notes List */}
         <div className="space-y-6">
@@ -96,7 +96,7 @@ export function NotesSection({ relatedTo, relatedId }: NotesSectionProps) {
               </div>
             ))
           ) : (
-            !loading && <p className="text-center text-muted-foreground">No notes yet.</p>
+            !loading && <p className="text-center text-muted-foreground">メモナシ</p>
           )}
         </div>
       </CardContent>

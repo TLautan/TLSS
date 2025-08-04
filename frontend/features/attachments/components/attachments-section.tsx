@@ -67,8 +67,8 @@ export function AttachmentsSection({ relatedTo, relatedId }: AttachmentsSectionP
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Attachments</CardTitle>
-        <CardDescription>Upload and manage related files.</CardDescription>
+        <CardTitle>添付ファイル</CardTitle>
+        <CardDescription>関連ファイルをアップロードして管理します。</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center space-x-2 border p-4 rounded-md">
@@ -81,10 +81,10 @@ export function AttachmentsSection({ relatedTo, relatedId }: AttachmentsSectionP
         {error && <p className="text-destructive text-sm mt-2">{error}</p>}
         <Table className="mt-4">
           <TableHeader>
-            <TableRow><TableHead>File Name</TableHead><TableHead>Uploader</TableHead><TableHead>Size</TableHead><TableHead>Date</TableHead></TableRow>
+            <TableRow><TableHead>ファイル名</TableHead><TableHead>アップローダー</TableHead><TableHead>サイズ</TableHead><TableHead>Date</TableHead></TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? <TableRow><TableCell colSpan={4} className="text-center">Loading...</TableCell></TableRow> : 
+            {loading ? <TableRow><TableCell colSpan={4} className="text-center">読み込み中</TableCell></TableRow> : 
             attachments.length > 0 ? attachments.map(att => (
               <TableRow key={att.id}>
                 <TableCell className="font-medium">
@@ -96,7 +96,7 @@ export function AttachmentsSection({ relatedTo, relatedId }: AttachmentsSectionP
                 <TableCell>{formatBytes(att.file_size)}</TableCell>
                 <TableCell>{new Date(att.created_at).toLocaleDateString()}</TableCell>
               </TableRow>
-            )) : <TableRow><TableCell colSpan={4} className="text-center">No attachments yet.</TableCell></TableRow>}
+            )) : <TableRow><TableCell colSpan={4} className="text-center">添付ファイルがありません</TableCell></TableRow>}
           </TableBody>
         </Table>
       </CardContent>
