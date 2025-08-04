@@ -15,6 +15,7 @@ import {
   ForecastEntry,
   SearchResult,
   DashboardPreferences,
+  UserPerformanceMetrics,
 } from './types';
 export const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -51,6 +52,11 @@ export const getCurrentUser = async (): Promise<User> => {
 
 export const getDashboardData = async (): Promise<DashboardData> => {
   const response = await apiClient.get('/analytics/dashboard');
+  return response.data;
+};
+
+export const getDetailedUserPerformance = async (userId: number): Promise<UserPerformanceMetrics> => {
+  const response = await apiClient.get(`/analytics/user-performance/detailed/${userId}`);
   return response.data;
 };
 

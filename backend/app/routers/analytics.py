@@ -44,6 +44,16 @@ def get_detailed_kpis_route(
     """
     return analytics_service.get_detailed_dashboard_kpis(db)
 
+@router.get("/user-performance/detailed/{user_id}", response_model=analytics_schema.UserPerformanceMetrics)
+def get_detailed_user_performance_route(user_id: int, db: Session = Depends(get_db)):
+    """
+    Endpoint to get a comprehensive breakdown of a single user's performance.
+    """
+    metrics = analytics_service.get_detailed_user_performance(db, user_id=user_id)
+    if metrics is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return metrics
+
 @router.get("/user-performance/{user_id}")
 def get_user_performance_route(
     user_id: int,

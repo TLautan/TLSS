@@ -1,9 +1,13 @@
 # backend/app/schemas/analytics.py
 
 from pydantic import BaseModel
-from typing import List, Dict, Union, Literal
+from typing import List, Dict, Any, Union, Literal
 from .deal import Deal
 from .user import User
+
+class MonthlySale(BaseModel):
+    name: str 
+    total: float
 
 class OverallKPIs(BaseModel):
     total_deals: int
@@ -32,18 +36,11 @@ class DashboardData(BaseModel):
     class Config:
         from_attributes = True
 
-class MonthlySale(BaseModel):
-    label: str
-    sales: float
-
 class SalesBreakdown(BaseModel):
     conclusion_rate: float
     won_count: int
 
 class DetailedKPIs(BaseModel):
-    """
-    Schema for the more detailed analytics dashboard.
-    """
     direct_sales: SalesBreakdown
     agency_sales: SalesBreakdown
     average_customer_unit_price: float
@@ -56,29 +53,10 @@ class MonthlyMetric(BaseModel):
     loss_rate: float
 
 class UserPerformance(BaseModel):
-    """
-    Schema for the performance metrics of a single user.
-    """
     user_id: int
     user_name: str
     average_days_to_win: float
     activity_summary: Dict[str, int]
-
-class ForecastEntry(BaseModel):
-    month: str
-    projected_revenue: float
-
-    class Config:
-        from_attributes = True
-
-class LeaderboardEntry(BaseModel):
-    user_id: int
-    user_name: str
-    total_revenue: float
-    deals_won: int
-    average_deal_size: float
-    class Config:
-        from_attributes = True   
 
 # --- SCHEMAS FOR DEAL OUTCOME ANALYSIS ---
 class ReasonAnalysis(BaseModel):
@@ -95,6 +73,51 @@ class DealOutcomesData(BaseModel):
     win_reasons: List[ReasonAnalysis]
     loss_reasons: List[ReasonAnalysis]
     industry_performance: List[IndustryPerformance]
+
+    class Config:
+        from_attributes = True
+
+# --- NEW SCHEMAS FOR DETAILED USER PERFORMANCE ---
+
+class MonthlyPerformance(BaseModel):
+    month: str
+    deals_won: int
+    deals_lost: int
+    win_rate: float
+
+class UserActivitySummary(BaseModel):
+    total_activities: int
+    activities_per_deal: float
+    by_type: Dict[str, int]
+
+class UserPerformanceMetrics(BaseModel):
+    user_id: int
+    user_name: str
+    average_days_to_win: float
+    total_revenue: float
+    deals_won: int
+    win_rate: float
+    monthly_performance: List[MonthlyPerformance]
+    win_reasons: List[ReasonAnalysis]
+    loss_reasons: List[ReasonAnalysis]
+    activity_summary: UserActivitySummary
+    
+    class Config:
+        from_attributes = True
+
+class LeaderboardEntry(BaseModel):
+    user_id: int
+    user_name: str
+    total_revenue: float
+    deals_won: int
+    average_deal_size: float
+
+    class Config:
+        from_attributes = True
+
+class ForecastEntry(BaseModel):
+    month: str
+    projected_revenue: float
 
     class Config:
         from_attributes = True

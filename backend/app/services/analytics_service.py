@@ -9,6 +9,7 @@ from app.models.user import User
 from app.models.activity import Activity
 from app.models.enums import DealStatus, DealType, ForecastAccuracy
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 def get_dashboard_data(db: Session) -> Dict[str, Any]:
     """
@@ -161,6 +162,92 @@ def get_detailed_dashboard_kpis(db: Session) -> Dict[str, Any]:
         "total_annual_sales": round(total_annual_sales, 2)
     }
     return kpis
+
+def get_detailed_user_performance(db: Session, user_id: int) -> Dict[str, Any]:
+    """
+    Calculates a comprehensive set of performance metrics for a single user.
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+
+    # Base query for all deals by this user
+    user_deals = db.query(Deal).filter(Deal.user_id == user_id)
+
+    # --- Core KPIs ---
+    won_deals = user_deals.filter(Deal.status == DealStatus.won).all()
+    lost_deals = user_deals.filter(Deal.status == DealStatus.lost).all()
+    
+    deals_won_count = len(won_deals)
+    deals_lost_count = len(lost_deals)
+    total_closed = deals_won_count + deals_lost_count
+    
+    total_revenue = sum(d.value for d in won_deals)
+    win_rate = (deals_won_count / total_closed) * 100 if total_closed > 0 else 0
+
+    # Average days to win
+    time_diff_seconds = func.extract('epoch', func.age(Deal.closed_at, Deal.created_at))
+    avg_seconds = db.query(func.avg(time_diff_seconds)).filter(
+        Deal.user_id == user_id, Deal.status == DealStatus.won
+    ).scalar()
+    average_days_to_win = avg_seconds / (60 * 60 * 24) if avg_seconds else 0
+
+    # --- Monthly Performance ---
+    monthly_stats = defaultdict(lambda: {'won': 0, 'lost': 0})
+    for deal in won_deals:
+        if deal.closed_at:
+            month_key = deal.closed_at.strftime('%Y-%m')
+            monthly_stats[month_key]['won'] += 1
+    for deal in lost_deals:
+        if deal.closed_at:
+            month_key = deal.closed_at.strftime('%Y-%m')
+            monthly_stats[month_key]['lost'] += 1
+
+    monthly_performance = []
+    for month, stats in sorted(monthly_stats.items()):
+        total = stats['won'] + stats['lost']
+        monthly_performance.append({
+            "month": month,
+            "deals_won": stats['won'],
+            "deals_lost": stats['lost'],
+            "win_rate": (stats['won'] / total) * 100 if total > 0 else 0
+        })
+
+    # --- Reason Analysis ---
+    win_reasons = db.query(Deal.win_reason, func.count(Deal.id).label('count')).filter(
+        Deal.user_id == user_id, Deal.status == DealStatus.won, Deal.win_reason.isnot(None)
+    ).group_by(Deal.win_reason).order_by(func.count(Deal.id).desc()).all()
+    
+    loss_reasons = db.query(Deal.loss_reason, func.count(Deal.id).label('count')).filter(
+        Deal.user_id == user_id, Deal.status == DealStatus.lost, Deal.loss_reason.isnot(None)
+    ).group_by(Deal.loss_reason).order_by(func.count(Deal.id).desc()).all()
+
+    # --- Activity Summary ---
+    total_activities = db.query(func.count(Activity.id)).join(Deal).filter(Deal.user_id == user_id).scalar() or 0
+    total_deals_with_activity = user_deals.count()
+    
+    activity_counts_by_type = db.query(Activity.type, func.count(Activity.id)).join(Deal).filter(
+        Deal.user_id == user_id
+    ).group_by(Activity.type).all()
+    
+    activity_summary = {
+        "total_activities": total_activities,
+        "activities_per_deal": total_activities / total_deals_with_activity if total_deals_with_activity > 0 else 0,
+        "by_type": {str(act_type.value): count for act_type, count in activity_counts_by_type}
+    }
+
+    return {
+        "user_id": user.id,
+        "user_name": user.name,
+        "average_days_to_win": round(average_days_to_win, 1),
+        "total_revenue": float(total_revenue),
+        "deals_won": deals_won_count,
+        "win_rate": round(win_rate, 2),
+        "monthly_performance": monthly_performance,
+        "win_reasons": [{"reason": r.win_reason, "count": r.count} for r in win_reasons],
+        "loss_reasons": [{"reason": r.loss_reason, "count": r.count} for r in loss_reasons],
+        "activity_summary": activity_summary
+    }
 
 def get_user_performance_metrics(db: Session, user_id: int) -> Dict[str, Any]:
     """

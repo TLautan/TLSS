@@ -185,3 +185,25 @@ export interface DashboardPreferences {
   layout: string[];
   visible_kpis: string[];
 }
+
+export interface UserPerformanceMetrics {
+  user_id: number;
+  user_name: string;
+  average_days_to_win: number;
+  total_revenue: number;
+  deals_won: number;
+  win_rate: number;
+  monthly_performance: {
+    month: string;
+    deals_won: number;
+    deals_lost: number;
+    win_rate: number;
+  }[];
+  win_reasons: { reason: string; count: number }[];
+  loss_reasons: { reason: string; count: number }[];
+  activity_summary: {
+    total_activities: number;
+    activities_per_deal: number;
+    by_type: { [key: string]: number };
+  };
+}

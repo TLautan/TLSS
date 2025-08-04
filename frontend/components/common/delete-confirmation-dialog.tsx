@@ -34,7 +34,7 @@ export function DeleteConfirmationDialog({
           <AlertDialogTitle>本当に確かですか？</AlertDialogTitle>
           <AlertDialogDescription>
             この操作は元に戻せません。これにより、{itemType} が完全に削除されます。
-            <span className="font-bold"> "{itemName}"</span>.
+            <span className="font-bold"> 「{itemName}」</span>.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
