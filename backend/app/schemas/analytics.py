@@ -57,8 +57,6 @@ class UserPerformance(BaseModel):
     user_name: str
     average_days_to_win: float
     activity_summary: Dict[str, int]
-
-# --- SCHEMAS FOR DEAL OUTCOME ANALYSIS ---
 class ReasonAnalysis(BaseModel):
     reason: str
     count: int
@@ -76,8 +74,6 @@ class DealOutcomesData(BaseModel):
 
     class Config:
         from_attributes = True
-
-# --- NEW SCHEMAS FOR DETAILED USER PERFORMANCE ---
 
 class MonthlyPerformance(BaseModel):
     month: str
@@ -102,6 +98,19 @@ class UserPerformanceMetrics(BaseModel):
     loss_reasons: List[ReasonAnalysis]
     activity_summary: UserActivitySummary
     
+    class Config:
+        from_attributes = True
+
+class ChannelPerformance(BaseModel):
+    deals_won: int
+    total_deals: int
+    win_rate: float
+    total_revenue: float
+
+class ChannelAnalyticsData(BaseModel):
+    direct: ChannelPerformance
+    agency: ChannelPerformance
+
     class Config:
         from_attributes = True
 

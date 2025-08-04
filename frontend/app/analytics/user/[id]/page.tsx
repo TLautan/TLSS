@@ -37,15 +37,15 @@ export default function UserPerformancePage() {
     fetchData();
   }, [userId]);
 
-  if (loading) return <div className="p-8">Loading performance dashboard...</div>;
+  if (loading) return <div className="p-8">読み込んでいます...</div>;
   if (error) return <div className="p-8 text-destructive">{error}</div>;
-  if (!data) return <div className="p-8">No performance data found for this user.</div>;
+  if (!data) return <div className="p-8">このユーザーのパフォーマンス データは見つかりません。</div>;
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Performance Dashboard</h1>
-        <p className="text-muted-foreground">Detailed analytics for {data.user_name}</p>
+        <h1 className="text-3xl font-bold">パフォーマンスダッシュボード</h1>
+        <p className="text-muted-foreground">{data.user_name} の詳細な分析</p>
       </div>
 
       {/* KPI Cards */}
@@ -59,8 +59,8 @@ export default function UserPerformancePage() {
       {/* Monthly Performance Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Monthly Performance</CardTitle>
-          <CardDescription>A breakdown of deals won and lost over time.</CardDescription>
+          <CardTitle>月次パフォーマンス</CardTitle>
+          <CardDescription>時間の経過とともに成立した取引と成立しなかった取引の内訳。</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={350}>
@@ -86,29 +86,29 @@ export default function UserPerformancePage() {
        {/* Activity Summary */}
       <Card>
           <CardHeader>
-              <CardTitle>Activity Summary</CardTitle>
-              <CardDescription>A summary of the user's sales activities.</CardDescription>
+              <CardTitle>活動概要</CardTitle>
+              <CardDescription>ユーザーの販売活動の概要。</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
               <div className="flex items-center space-x-4 rounded-md border p-4">
                   <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium leading-none">Total Activities</p>
+                      <p className="text-sm font-medium leading-none">総アクティビティ数</p>
                       <p className="text-2xl font-bold">{data.activity_summary.total_activities}</p>
                   </div>
               </div>
               <div className="flex items-center space-x-4 rounded-md border p-4">
                   <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium leading-none">Avg. Activities Per Deal</p>
+                      <p className="text-sm font-medium leading-none">取引あたりの平均アクティビティ数</p>
                       <p className="text-2xl font-bold">{data.activity_summary.activities_per_deal.toFixed(1)}</p>
                   </div>
               </div>
               <div className="flex items-center space-x-4 rounded-md border p-4">
                   <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium leading-none">Breakdown</p>
+                      <p className="text-sm font-medium leading-none">分析</p>
                       <div className="text-sm text-muted-foreground flex items-center">
-                          <Phone className="h-4 w-4 mr-2" /> Phone: {data.activity_summary.by_type['電話'] || 0} |
-                          <Mail className="h-4 w-4 mx-2" /> Email: {data.activity_summary.by_type['メール'] || 0} |
-                          <Users className="h-4 w-4 ml-2 mr-2" /> Meeting: {data.activity_summary.by_type['会議'] || 0}
+                          <Phone className="h-4 w-4 mr-2" /> 電話番号: {data.activity_summary.by_type['電話'] || 0} |
+                          <Mail className="h-4 w-4 mx-2" /> メールアドレス: {data.activity_summary.by_type['メール'] || 0} |
+                          <Users className="h-4 w-4 ml-2 mr-2" /> 会議: {data.activity_summary.by_type['会議'] || 0}
                       </div>
                   </div>
               </div>
@@ -143,7 +143,7 @@ function ReasonTable({ title, reasons }: { title: string, reasons: { reason: str
       <CardContent>
         <Table>
           <TableHeader>
-            <TableRow><TableHead>Reason</TableHead><TableHead className="text-right">Count</TableHead></TableRow>
+            <TableRow><TableHead>理由</TableHead><TableHead className="text-right">数</TableHead></TableRow>
           </TableHeader>
           <TableBody>
             {reasons.length > 0 ? reasons.map(r => (
@@ -151,7 +151,7 @@ function ReasonTable({ title, reasons }: { title: string, reasons: { reason: str
                 <TableCell>{r.reason}</TableCell>
                 <TableCell className="text-right">{r.count}</TableCell>
               </TableRow>
-            )) : <TableRow><TableCell colSpan={2} className="text-center">No data available.</TableCell></TableRow>}
+            )) : <TableRow><TableCell colSpan={2} className="text-center">データはありません。</TableCell></TableRow>}
           </TableBody>
         </Table>
       </CardContent>

@@ -16,6 +16,7 @@ import {
   SearchResult,
   DashboardPreferences,
   UserPerformanceMetrics,
+  ChannelAnalyticsData,
 } from './types';
 export const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -62,6 +63,11 @@ export const getDetailedUserPerformance = async (userId: number): Promise<UserPe
 
 export const getUserPerformance = async (userId: number) => {
   const response = await apiClient.get(`/analytics/user-performance/${userId}`);
+  return response.data;
+};
+
+export const getChannelPerformance = async (): Promise<ChannelAnalyticsData> => {
+  const response = await apiClient.get('/analytics/channel-performance');
   return response.data;
 };
 

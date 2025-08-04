@@ -249,41 +249,38 @@ def get_detailed_user_performance(db: Session, user_id: int) -> Dict[str, Any]:
         "activity_summary": activity_summary
     }
 
-def get_user_performance_metrics(db: Session, user_id: int) -> Dict[str, Any]:
+def get_channel_performance_analytics(db: Session) -> Dict[str, Any]:
     """
-    Calculates key performance metrics for a single user.
-    FIXED: Replaced func.julianday (SQLite) with date subtraction for PostgreSQL.
+    Calculates and compares performance metrics for 'direct' vs 'agency' sales channels.
     """
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        return None
-
-    user_deals = db.query(Deal).filter(Deal.user_id == user_id).count()
-    if user_deals == 0:
-        return { "user_id": user.id, "user_name": user.name, "monthly_metrics": [], "average_days_to_win": 0, "activity_summary": {} }
-
-    # PostgreSQL uses extract('epoch' from age(...)) for date differences in seconds
-    time_diff_seconds = func.extract('epoch', func.age(Deal.closed_at, Deal.lead_generated_at))
-    avg_seconds_to_win = db.query(func.avg(time_diff_seconds)).filter(
-        Deal.user_id == user_id,
-        Deal.status == DealStatus.won,
-        Deal.closed_at.isnot(None)
-    ).scalar()
     
-    avg_days_to_win = round(avg_seconds_to_win / (60*60*24), 1) if avg_seconds_to_win is not None else 0
-    
-    activity_counts = db.query(
-        Activity.type, func.count(Activity.id).label('count')
-    ).join(Deal).filter(Deal.user_id == user_id).group_by(Activity.type).all()
-    
-    activity_summary = {row.type.value: row.count for row in activity_counts}
+    def calculate_metrics_for_channel(channel_type: DealType):
+        deals = db.query(Deal).filter(Deal.type == channel_type).all()
+        
+        total_deals = len(deals)
+        won_deals = [d for d in deals if d.status == DealStatus.won]
+        deals_won_count = len(won_deals)
+        
+        closed_deals_count = db.query(Deal).filter(
+            Deal.type == channel_type,
+            Deal.status.in_([DealStatus.won, DealStatus.lost])
+        ).count()
 
-    return {
-        "user_id": user.id,
-        "user_name": user.name,
-        "average_days_to_win": avg_days_to_win,
-        "activity_summary": activity_summary
-    }
+        win_rate = (deals_won_count / closed_deals_count) * 100 if closed_deals_count > 0 else 0
+        total_revenue = sum(d.value for d in won_deals)
+        
+        return {
+            "deals_won": deals_won_count,
+            "total_deals": total_deals,
+            "win_rate": round(win_rate, 2),
+            "total_revenue": float(total_revenue)
+        }
+
+    direct_metrics = calculate_metrics_for_channel(DealType.direct)
+    agency_metrics = calculate_metrics_for_channel(DealType.agency)
+    
+    return {"direct": direct_metrics, "agency": agency_metrics}
+
 
 def get_deal_outcome_breakdowns(db: Session) -> List[Dict]:
     """

@@ -45,7 +45,10 @@ def get_detailed_kpis_route(
     return analytics_service.get_detailed_dashboard_kpis(db)
 
 @router.get("/user-performance/detailed/{user_id}", response_model=analytics_schema.UserPerformanceMetrics)
-def get_detailed_user_performance_route(user_id: int, db: Session = Depends(get_db)):
+def get_detailed_user_performance_route(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),):
     """
     Endpoint to get a comprehensive breakdown of a single user's performance.
     """
@@ -54,19 +57,14 @@ def get_detailed_user_performance_route(user_id: int, db: Session = Depends(get_
         raise HTTPException(status_code=404, detail="User not found")
     return metrics
 
-@router.get("/user-performance/{user_id}")
-def get_user_performance_route(
-    user_id: int,
+@router.get("/channel-performance", response_model=analytics_schema.ChannelAnalyticsData)
+def get_channel_performance_route(
     db: Session = Depends(get_db),
-    current_user: models.user.User = Depends(security.get_current_user),
-    ):
+    current_user: models.user.User = Depends(security.get_current_user),):
     """
-    Endpoint to get performance KPIs for a specific user.
+    Endpoint to get a performance breakdown by sales channel (direct vs. agency).
     """
-    metrics = analytics_service.get_user_performance_metrics(db, user_id=user_id)
-    if metrics is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return metrics
+    return analytics_service.get_channel_performance_analytics(db)
 
 @router.get("/deal-outcomes", response_model=analytics_schema.DealOutcomesData)
 def get_deal_outcomes_analysis_route(

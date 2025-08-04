@@ -122,6 +122,18 @@ export interface DealOutcomesData {
     industry_performance: IndustryPerformance[];
 }
 
+export interface ChannelPerformance {
+  deals_won: number;
+  total_deals: number;
+  win_rate: number;
+  total_revenue: number;
+}
+
+export interface ChannelAnalyticsData {
+  direct: ChannelPerformance;
+  agency: ChannelPerformance;
+}
+
 export interface LeaderboardEntry {
   user_id: number;
   user_name: string;
