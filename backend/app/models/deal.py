@@ -22,6 +22,7 @@ class Deal(Base):
     product_name = Column(String(255), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    agency_id = Column(Integer, ForeignKey("agencies.id"), nullable=True)
     lead_generated_at = Column(DateTime(timezone=True), server_default=func.now())
     closed_at = Column(DateTime(timezone=True), nullable=True)
     win_reason = Column(Text, nullable=True)

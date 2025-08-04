@@ -7,6 +7,7 @@ from app.models.deal import Deal
 from app.models.company import Company
 from app.models.user import User
 from app.models.activity import Activity
+from app.models.agency import Agency
 from app.models.enums import DealStatus, DealType, ForecastAccuracy
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -248,6 +249,49 @@ def get_detailed_user_performance(db: Session, user_id: int) -> Dict[str, Any]:
         "loss_reasons": [{"reason": r.loss_reason, "count": r.count} for r in loss_reasons],
         "activity_summary": activity_summary
     }
+
+def get_agency_performance(db: Session) -> List[Dict[str, Any]]:
+    """
+    Calculates sales performance metrics for each agency.
+    """
+    # This query needs a more complex join through deals and companies.
+    # First, let's find which deals are associated with which agencies.
+    # Assuming a deal is linked to an agency through its company,
+    # and we need a link from company to agency.
+    # The current model doesn't directly link a Deal to an Agency.
+    # Let's assume for now that a Deal's 'type' being 'agency' is the link.
+    # And that we need to associate it with a specific agency.
+    #
+    # Looking at the Deal model, there is no direct agency_id.
+    # This is a gap in the data model to fulfill the requirement.
+    #
+    # To solve this, let's add an optional `agency_id` to the `deals` table.
+    # For now, I will write the query AS IF this field existed,
+    # and then we will add it to the model.
+
+    agency_performance_data = (
+        db.query(
+            Agency.id.label("agency_id"),
+            Agency.agency_name.label("agency_name"),
+            func.count(Deal.id).label("deals_won"),
+            func.sum(Deal.value).label("total_revenue")
+        )
+        .join(Deal, Agency.id == Deal.agency_id) # This requires agency_id on Deal
+        .filter(Deal.status == DealStatus.won)
+        .group_by(Agency.id, Agency.agency_name)
+        .order_by(func.sum(Deal.value).desc())
+        .all()
+    )
+    
+    return [
+        {
+            "agency_id": row.agency_id,
+            "agency_name": row.agency_name,
+            "deals_won": row.deals_won,
+            "total_revenue": float(row.total_revenue or 0)
+        }
+        for row in agency_performance_data
+    ]
 
 def get_channel_performance_analytics(db: Session) -> Dict[str, Any]:
     """

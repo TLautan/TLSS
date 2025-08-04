@@ -101,6 +101,15 @@ class UserPerformanceMetrics(BaseModel):
     class Config:
         from_attributes = True
 
+class AgencyPerformance(BaseModel):
+    agency_id: int
+    agency_name: str
+    deals_won: int
+    total_revenue: float
+
+    class Config:
+        from_attributes = True
+
 class ChannelPerformance(BaseModel):
     deals_won: int
     total_deals: int

@@ -134,6 +134,13 @@ export interface ChannelAnalyticsData {
   agency: ChannelPerformance;
 }
 
+export interface AgencyPerformance {
+  agency_id: number;
+  agency_name: string;
+  deals_won: number;
+  total_revenue: number;
+}
+
 export interface LeaderboardEntry {
   user_id: number;
   user_name: string;

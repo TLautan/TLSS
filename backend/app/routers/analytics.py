@@ -48,7 +48,8 @@ def get_detailed_kpis_route(
 def get_detailed_user_performance_route(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: models.user.User = Depends(security.get_current_user),):
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Endpoint to get a comprehensive breakdown of a single user's performance.
     """
@@ -60,11 +61,22 @@ def get_detailed_user_performance_route(
 @router.get("/channel-performance", response_model=analytics_schema.ChannelAnalyticsData)
 def get_channel_performance_route(
     db: Session = Depends(get_db),
-    current_user: models.user.User = Depends(security.get_current_user),):
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
     """
     Endpoint to get a performance breakdown by sales channel (direct vs. agency).
     """
     return analytics_service.get_channel_performance_analytics(db)
+
+@router.get("/agency-performance", response_model=List[analytics_schema.AgencyPerformance])
+def get_agency_performance_route(
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
+    """
+    Endpoint to get a performance breakdown by agency.
+    """
+    return analytics_service.get_agency_performance(db)
 
 @router.get("/deal-outcomes", response_model=analytics_schema.DealOutcomesData)
 def get_deal_outcomes_analysis_route(

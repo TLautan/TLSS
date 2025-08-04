@@ -6,7 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { getChannelPerformance } from '@/lib/api';
 import { ChannelAnalyticsData } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { DollarSign, Target, Percent, Package } from 'lucide-react';
+import { DollarSign, Target, Percent } from 'lucide-react';
 
 export default function ChannelPerformancePage() {
   const [data, setData] = useState<ChannelAnalyticsData | null>(null);
