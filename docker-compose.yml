@@ -18,6 +18,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/code
+      - backend_uploads:/code/uploads
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
@@ -36,3 +37,4 @@ services:
 
 volumes:
   postgresql_data:
+  backend_uploads: {}

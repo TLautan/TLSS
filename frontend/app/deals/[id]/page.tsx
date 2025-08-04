@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from '@/components/ui/badge';
 import { Mail, Phone, Users, Calendar } from 'lucide-react';
 import { NotesSection } from '@/features/notes/components/notes-section';
+import { AttachmentsSection } from '@/features/attachments/components/attachments-section';
 
 const activityIcons = {
   email: <Mail className="h-5 w-5 text-muted-foreground" />,
@@ -152,6 +153,7 @@ export default function DealDetailPage() {
         </CardContent>
       </Card>
       <NotesSection relatedTo="deal" relatedId={deal.id} />
+      <AttachmentsSection relatedTo="deal" relatedId={deal.id} />
     </div>
   );
 }

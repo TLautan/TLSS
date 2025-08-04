@@ -9,6 +9,7 @@ import {
   Company,
   Activity,
   Note,
+  Attachment,
   DealOutcomesData,
   LeaderboardEntry,
   ForecastEntry,
@@ -20,7 +21,7 @@ export const apiClient = axios.create({
 
 // --- Authentication ---
 export interface LoginData {
-    username: string; // This corresponds to the email
+    username: string;
     password: string;
 }
 
@@ -344,5 +345,17 @@ export const createNote = async (noteData: NoteCreateData): Promise<Note> => {
 
 export const getNotes = async (related_to: 'deal' | 'company', related_id: number): Promise<Note[]> => {
     const response = await apiClient.get(`/notes/${related_to}/${related_id}`);
+    return response.data;
+};
+
+export const uploadAttachment = async (formData: FormData): Promise<Attachment> => {
+    const response = await apiClient.post('/attachments/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+};
+
+export const getAttachments = async (related_to: 'deal' | 'company', related_id: number): Promise<Attachment[]> => {
+    const response = await apiClient.get(`/attachments/${related_to}/${related_id}`);
     return response.data;
 };

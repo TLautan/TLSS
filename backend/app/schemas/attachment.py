@@ -1,22 +1,20 @@
-# backend/app/schemas/note.py
+# backend/app/schemas/attachment.py
 
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 from .user import UserInDBBase as UserSchema
 
-class NoteBase(BaseModel):
-    content: str
+class AttachmentBase(BaseModel):
+    file_name: str
+    file_type: Optional[str] = None
+    file_size: Optional[int] = None
 
-class NoteCreate(NoteBase):
-    related_to: str
-    related_id: int
-
-class Note(NoteBase):
+class Attachment(AttachmentBase):
     id: int
     user_id: int
     created_at: datetime
-    owner: Optional[UserSchema] = None
+    uploader: Optional[UserSchema] = None
 
     class Config:
         from_attributes = True

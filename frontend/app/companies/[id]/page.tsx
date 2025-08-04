@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { NotesSection } from '@/features/notes/components/notes-section';
+import { AttachmentsSection } from '@/features/attachments/components/attachments-section';
 
 export default function CompanyDetailPage() {
   const params = useParams();
@@ -112,6 +113,7 @@ export default function CompanyDetailPage() {
         </CardContent>
       </Card>
       <NotesSection relatedTo="company" relatedId={company.id} />
+      <AttachmentsSection relatedTo="company" relatedId={company.id} />
     </div>
   );
 }

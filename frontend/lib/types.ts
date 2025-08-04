@@ -164,3 +164,14 @@ export interface Note {
     email: string;
   };
 }
+
+export interface Attachment {
+  id: number;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  created_at: string;
+  uploader?: {
+    name: string;
+  };
+}

@@ -2,10 +2,11 @@
 
 from sqlalchemy.orm import Session, joinedload
 from typing import List
-from app import models, schemas
+from app.models import note as note_model
+from app.schemas import note as note_schema
 
-def create_note(db: Session, note: schemas.note.NoteCreate, user_id: int) -> models.note.Note:
-    db_note = models.note.Note(
+def create_note(db: Session, note: note_schema.NoteCreate, user_id: int) -> note_model.Note:
+    db_note = note_model.Note(
         **note.model_dump(),
         user_id=user_id
     )
@@ -14,11 +15,11 @@ def create_note(db: Session, note: schemas.note.NoteCreate, user_id: int) -> mod
     db.refresh(db_note)
     return db_note
 
-def get_notes_for_item(db: Session, related_to: str, related_id: int) -> List[models.note.Note]:
+def get_notes_for_item(db: Session, related_to: str, related_id: int) -> List[note_model.Note]:
     return (
-        db.query(models.note.Note)
-        .options(joinedload(models.note.Note.owner))
+        db.query(note_model.Note)
+        .options(joinedload(note_model.Note.owner))
         .filter_by(related_to=related_to, related_id=related_id)
-        .order_by(models.note.Note.created_at.desc())
+        .order_by(note_model.Note.created_at.desc())
         .all()
     )
