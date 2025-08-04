@@ -5,9 +5,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { globalSearch } from '@/lib/api';
 import { SearchResult } from '@/lib/types';
-import { Input } from '@/components/ui/input';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Search, User, Building, DollarSign } from 'lucide-react';
+import { User, Building, DollarSign } from 'lucide-react';
 
 // Custom hook for debouncing
 const useDebounce = (value: string, delay: number) => {
@@ -30,7 +29,7 @@ const getIcon = (type: SearchResult['type']) => {
 
 const getLink = (item: SearchResult) => {
     switch (item.type) {
-        case 'user': return `/users`; // Or a future user detail page
+        case 'user': return `/users`;
         case 'company': return `/companies/${item.id}`;
         case 'deal': return `/deals/${item.id}`;
         default: return '/';
