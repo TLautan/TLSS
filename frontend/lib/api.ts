@@ -8,6 +8,7 @@ import {
   Agency,
   Company,
   Activity,
+  Note,
   DealOutcomesData,
   LeaderboardEntry,
   ForecastEntry,
@@ -327,4 +328,21 @@ export const globalSearch = async (query: string): Promise<SearchResult[]> => {
   }
   const response = await apiClient.get('/analytics/search', { params: { q: query } });
   return response.data;
+};
+
+// --- Notes ---
+interface NoteCreateData {
+    content: string;
+    related_to: 'deal' | 'company';
+    related_id: number;
+}
+
+export const createNote = async (noteData: NoteCreateData): Promise<Note> => {
+    const response = await apiClient.post('/notes/', noteData);
+    return response.data;
+};
+
+export const getNotes = async (related_to: 'deal' | 'company', related_id: number): Promise<Note[]> => {
+    const response = await apiClient.get(`/notes/${related_to}/${related_id}`);
+    return response.data;
 };

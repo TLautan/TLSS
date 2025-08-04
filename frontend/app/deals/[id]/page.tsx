@@ -9,6 +9,7 @@ import { Deal, Activity } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from '@/components/ui/badge';
 import { Mail, Phone, Users, Calendar } from 'lucide-react';
+import { NotesSection } from '@/features/notes/components/notes-section';
 
 const activityIcons = {
   email: <Mail className="h-5 w-5 text-muted-foreground" />,
@@ -56,7 +57,7 @@ export default function DealDetailPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="p-8">Loading deal details...</div>;
+    return <div className="p-8">読み込み中</div>;
   }
 
   if (error) {
@@ -64,7 +65,7 @@ export default function DealDetailPage() {
   }
 
   if (!deal) {
-    return <div className="p-8">Deal not found.</div>;
+    return <div className="p-8">取引がりません。</div>;
   }
 
   return (
@@ -73,7 +74,7 @@ export default function DealDetailPage() {
       <div>
         <h1 className="text-3xl font-bold">{deal.title}</h1>
         <p className="text-muted-foreground">
-          For {deal.company?.company_name} - Managed by {deal.user?.name}
+          {deal.company?.company_name} - 担当： {deal.user?.name}
         </p>
       </div>
 
@@ -85,27 +86,27 @@ export default function DealDetailPage() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <p className="font-semibold">Value</p>
+              <p className="font-semibold">価値</p>
               <p>¥{Number(deal.value).toLocaleString()}</p>
             </div>
             <div>
-              <p className="font-semibold">Status</p>
+              <p className="font-semibold">ステータス</p>
               <Badge variant="secondary">{deal.status}</Badge>
             </div>
             <div>
-              <p className="font-semibold">Type</p>
+              <p className="font-semibold">タイプ</p>
               <p>{deal.type}</p>
             </div>
             <div>
-              <p className="font-semibold">Lead Source</p>
+              <p className="font-semibold">リードソース</p>
               <p>{deal.lead_source || 'N/A'}</p>
             </div>
             <div>
-              <p className="font-semibold">Product</p>
+              <p className="font-semibold">製品</p>
               <p>{deal.product_name || 'N/A'}</p>
             </div>
             <div>
-              <p className="font-semibold">Forecast</p>
+              <p className="font-semibold">予報</p>
               <p>{deal.forecast_accuracy || 'N/A'}</p>
             </div>
           </div>
@@ -115,8 +116,8 @@ export default function DealDetailPage() {
       {/* Activity Timeline Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Activity Timeline</CardTitle>
-          <CardDescription>A log of all interactions for this deal.</CardDescription>
+          <CardTitle>タイムライン</CardTitle>
+          <CardDescription>この取引に関するすべてのやり取りのログ。</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
@@ -144,12 +145,13 @@ export default function DealDetailPage() {
                 ))
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                No activities have been logged for this deal yet.
+                アクティビティはまだありません。
               </div>
             )}
           </div>
         </CardContent>
       </Card>
+      <NotesSection relatedTo="deal" relatedId={deal.id} />
     </div>
   );
 }

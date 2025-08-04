@@ -152,3 +152,15 @@ export interface DealSearchResult {
 }
 
 export type SearchResult = UserSearchResult | CompanySearchResult | DealSearchResult;
+
+export interface Note {
+  id: number;
+  content: string;
+  user_id: number;
+  created_at: string;
+  owner?: {
+    id: number;
+    name: string;
+    email: string;
+  };
+}
