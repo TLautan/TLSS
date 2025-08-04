@@ -141,6 +141,21 @@ export interface AgencyPerformance {
   total_revenue: number;
 }
 
+export interface ChurnReasonAnalysis {
+  reason: string;
+  count: number;
+}
+
+export interface ChurnAnalysisData {
+  annual_survival_rate: number;
+  annual_churn_rate: number;
+  monthly_cancellation_rates: {
+    label: string;
+    cancellation_rate: number;
+  }[];
+  cancellation_reasons: ChurnReasonAnalysis[];
+}
+
 export interface LeaderboardEntry {
   user_id: number;
   user_name: string;

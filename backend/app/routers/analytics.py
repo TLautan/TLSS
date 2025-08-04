@@ -88,6 +88,16 @@ def get_deal_outcomes_analysis_route(
     """
     return analytics_service.get_deal_outcomes_analysis(db)
 
+@router.get("/churn-analysis", response_model=analytics_schema.ChurnAnalysisData)
+def get_churn_analysis_route(
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user),
+    ):
+    """
+    Endpoint to get a detailed breakdown of churn analytics.
+    """
+    return analytics_service.get_churn_analysis(db)
+
 @router.get("/monthly-cancellation-rate")
 def get_monthly_cancellation_rate_route(
     db: Session = Depends(get_db),

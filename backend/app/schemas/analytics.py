@@ -159,3 +159,16 @@ class DealSearchResult(BaseModel):
     value: float
 
 SearchResult = Union[UserSearchResult, CompanySearchResult, DealSearchResult]
+
+class ChurnReasonAnalysis(BaseModel):
+    reason: str
+    count: int
+
+class ChurnAnalysisData(BaseModel):
+    annual_survival_rate: float
+    annual_churn_rate: float
+    monthly_cancellation_rates: List[Dict[str, Any]]
+    cancellation_reasons: List[ChurnReasonAnalysis]
+
+    class Config:
+        from_attributes = True

@@ -11,6 +11,8 @@ from app.models.agency import Agency
 from app.models.enums import DealStatus, DealType, ForecastAccuracy
 from datetime import datetime, timedelta
 from collections import defaultdict
+from functools import reduce
+import operator
 
 def get_dashboard_data(db: Session) -> Dict[str, Any]:
     """
@@ -427,6 +429,63 @@ def get_sales_leaderboard(db: Session) -> List[Dict[str, Any]]:
         }
         for row in leaderboard_data
     ]
+
+def get_churn_analysis(db: Session) -> Dict[str, Any]:
+    """
+    Calculates detailed churn metrics including annual survival rate and reason breakdown.
+    """
+    twelve_months_ago = datetime.utcnow() - timedelta(days=365)
+    
+    # Base query for deals with a start date in the last year
+    # NOTE: This assumes 'created_at' is the contract start date. A real 'contract_start_date' would be better.
+    deals_last_year = db.query(Deal).filter(Deal.created_at >= twelve_months_ago).all()
+    
+    monthly_survival_rates = []
+    
+    # Group deals by their start month
+    deals_by_start_month = defaultdict(list)
+    for deal in deals_last_year:
+        deals_by_start_month[deal.created_at.strftime('%Y-%m')].append(deal)
+
+    # Calculate monthly survival rates
+    for month, deals in deals_by_start_month.items():
+        start_of_month_count = len(deals)
+        # Count how many of these specific deals were cancelled within the same month
+        cancelled_this_month = sum(1 for d in deals if d.status == DealStatus.cancelled and d.closed_at and d.closed_at.strftime('%Y-%m') == month)
+        
+        monthly_churn_rate = cancelled_this_month / start_of_month_count if start_of_month_count > 0 else 0
+        monthly_survival_rates.append(1 - monthly_churn_rate)
+
+    # Calculate Annual Survival Rate by multiplying all monthly survival rates
+    # reduce(operator.mul, [1, 2, 3], 1) is equivalent to 1 * 1 * 2 * 3
+    annual_survival_rate = reduce(operator.mul, monthly_survival_rates, 1)
+
+    # Cancellation reasons analysis
+    reason_query = (
+        db.query(
+            Deal.cancellation_reason,
+            func.count(Deal.id).label("count")
+        )
+        .filter(
+            Deal.status == DealStatus.cancelled,
+            Deal.cancellation_reason.isnot(None)
+        )
+        .group_by(Deal.cancellation_reason)
+        .order_by(func.count(Deal.id).desc())
+        .all()
+    )
+    
+    cancellation_reasons = [{"reason": r.cancellation_reason, "count": r.count} for r in reason_query]
+    
+    # Reuse existing monthly cancellation rate logic for the chart
+    monthly_rates_chart_data = calculate_monthly_cancellation_rate(db)
+
+    return {
+        "annual_survival_rate": round(annual_survival_rate * 100, 2),
+        "annual_churn_rate": round((1 - annual_survival_rate) * 100, 2),
+        "monthly_cancellation_rates": monthly_rates_chart_data,
+        "cancellation_reasons": cancellation_reasons,
+    }
 
 def calculate_monthly_cancellation_rate(db: Session) -> List[Dict[str, Any]]:
     """

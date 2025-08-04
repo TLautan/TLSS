@@ -18,6 +18,7 @@ import {
   UserPerformanceMetrics,
   ChannelAnalyticsData,
   AgencyPerformance,
+  ChurnAnalysisData,
 } from './types';
 export const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -94,6 +95,11 @@ export const getSalesForecast = async (): Promise<ForecastEntry[]> => {
 
 export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
   const response = await apiClient.get('/analytics/leaderboard');
+  return response.data;
+};
+
+export const getChurnAnalysis = async (): Promise<ChurnAnalysisData> => {
+  const response = await apiClient.get('/analytics/churn-analysis');
   return response.data;
 };
 

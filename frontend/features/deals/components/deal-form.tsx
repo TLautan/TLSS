@@ -5,9 +5,10 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DEAL_STATUSES, DEAL_TYPES, LEAD_SOURCES, PRODUCTS, FORECAST_ACCURACY } from '@/lib/constants';
-import { User, Company, Deal } from '@/lib/types';
+import { User, Company } from '@/lib/types';
 
 export type DealFormData = {
   title: string;
@@ -19,6 +20,9 @@ export type DealFormData = {
   lead_source: string;
   product_name: string;
   forecast_accuracy: string;
+  win_reason: string;
+  loss_reason: string;
+  cancellation_reason: string;
 };
 
 interface DealFormProps {
@@ -31,23 +35,26 @@ interface DealFormProps {
 
 export const DealForm = ({ users, companies, initialData, onSubmit, isLoading }: DealFormProps) => {
   const [formData, setFormData] = useState<DealFormData>({
-    title: '', value: '', type: '', status: '進行中', user_id: '',
+    title: '', value: '', type: '', status: 'in_progress', user_id: '',
     company_id: '', lead_source: '', product_name: '', forecast_accuracy: '',
+    win_reason: '', loss_reason: '', cancellation_reason: ''
   });
 
-  // When initialData is provided (for editing), populate the form state
   useEffect(() => {
     if (initialData) {
       setFormData({
         title: initialData.title || '',
         value: initialData.value || '',
         type: initialData.type || '',
-        status: initialData.status || '進行中',
+        status: initialData.status || 'in_progress',
         user_id: initialData.user_id || '',
         company_id: initialData.company_id || '',
         lead_source: initialData.lead_source || '',
         product_name: initialData.product_name || '',
         forecast_accuracy: initialData.forecast_accuracy || '',
+        win_reason: initialData.win_reason || '',
+        loss_reason: initialData.loss_reason || '',
+        cancellation_reason: initialData.cancellation_reason || '',
       });
     }
   }, [initialData]);
@@ -146,7 +153,24 @@ export const DealForm = ({ users, companies, initialData, onSubmit, isLoading }:
                 </Select>
             </div>
         </div>
-        
+        {formData.status === 'won' && (
+            <div className="space-y-2">
+                <Label htmlFor="win_reason">受注理由</Label>
+                <Textarea id="win_reason" value={formData.win_reason} onChange={(e) => handleInputChange('win_reason', e.target.value)} placeholder="e.g., Better pricing, superior features..." />
+            </div>
+        )}
+        {formData.status === 'lost' && (
+            <div className="space-y-2">
+                <Label htmlFor="loss_reason">失注理由</Label>
+                <Textarea id="loss_reason" value={formData.loss_reason} onChange={(e) => handleInputChange('loss_reason', e.target.value)} placeholder="e.g., Competitor offered a discount..." />
+            </div>
+        )}
+        {formData.status === 'cancelled' && (
+            <div className="space-y-2">
+                <Label htmlFor="cancellation_reason">キャンセル理由</Label>
+                <Textarea id="cancellation_reason" value={formData.cancellation_reason} onChange={(e) => handleInputChange('cancellation_reason', e.target.value)} placeholder="e.g., Project budget cut, change in priorities..." />
+            </div>
+        )}      
         <Button type="submit" disabled={isLoading} className="w-full">
             {isLoading ? 'Saving...' : '保存'}
         </Button>

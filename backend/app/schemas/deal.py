@@ -34,7 +34,7 @@ class DealCreate(DealBase):
 
 # --- Schema for Updating a Deal ---
 class DealUpdate(BaseModel):
-    # Fields for updating...
+    cancellation_reason: Optional[str] = None
     pass
 
 # --- Main Schema for Reading a Deal ---
