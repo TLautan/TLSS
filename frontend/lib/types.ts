@@ -45,6 +45,8 @@ export interface KpiData {
   total_value: number;
   win_rate: number;
   average_deal_size: number;
+  average_time_to_close: number;
+  arpu: number;
 }
 
 export interface ChartDataPoint {
@@ -57,12 +59,7 @@ export interface DonutChartDataPoint {
   value: number;
 }
 export interface DashboardData {
-  kpis: {
-    total_deals: number;
-    total_value: number;
-    win_rate: number;
-    average_deal_size: number;
-  };
+  kpis: KpiData;
   monthly_sales_chart_data: ChartDataPoint[];
   deal_outcomes_chart_data: DonutChartDataPoint[];
   recent_deals: Deal[];

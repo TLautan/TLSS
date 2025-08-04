@@ -14,6 +14,8 @@ class OverallKPIs(BaseModel):
     total_value: float
     win_rate: float
     average_deal_size: float
+    average_time_to_close: float
+    arpu: float
 
     class Config:
         from_attributes = True

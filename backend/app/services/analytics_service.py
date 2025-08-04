@@ -21,23 +21,37 @@ def get_dashboard_data(db: Session) -> Dict[str, Any]:
     """
     
     # --- KPI Calculations ---
-    total_deals = db.query(Deal).count()
-    total_value_query = db.query(func.sum(Deal.value)).scalar()
+    total_deals_query = db.query(Deal)
+    won_deals_query = total_deals_query.filter(Deal.status == DealStatus.won)
+    
+    total_deals = total_deals_query.count()
+    total_value_query = db.query(func.sum(Deal.value)).filter(Deal.status == DealStatus.won).scalar()
     total_value = total_value_query if total_value_query is not None else 0
 
-    won_deals_count = db.query(Deal).filter(Deal.status == DealStatus.won).count()
-    lost_deals_count = db.query(Deal).filter(Deal.status == DealStatus.lost).count()
+    won_deals_count = won_deals_query.count()
+    lost_deals_count = total_deals_query.filter(Deal.status == DealStatus.lost).count()
     
     total_closed_deals = won_deals_count + lost_deals_count
     
     win_rate = (won_deals_count / total_closed_deals) * 100 if total_closed_deals > 0 else 0
     average_deal_size = total_value / won_deals_count if won_deals_count > 0 else 0
+
+    time_diff_seconds = func.extract('epoch', func.age(Deal.closed_at, Deal.created_at))
+    avg_seconds_to_win = db.query(func.avg(time_diff_seconds)).filter(
+        Deal.status == DealStatus.won, Deal.closed_at.isnot(None)
+    ).scalar()
+    average_time_to_close = avg_seconds_to_win / (60 * 60 * 24) if avg_seconds_to_win else 0
+
+    unique_winning_companies = won_deals_query.distinct(Deal.company_id).count()
+    arpu = total_value / unique_winning_companies if unique_winning_companies > 0 else 0
     
     kpis = {
         "total_deals": total_deals,
         "total_value": round(float(total_value), 2),
         "win_rate": round(win_rate, 2),
-        "average_deal_size": round(float(average_deal_size), 2)
+        "average_deal_size": round(float(average_deal_size), 2),
+        "average_time_to_close": round(average_time_to_close, 1),
+        "arpu": round(float(arpu), 2)
     }
 
     # --- Chart Data ---
@@ -62,8 +76,6 @@ def get_dashboard_data(db: Session) -> Dict[str, Any]:
     recent_deals = db.query(Deal).order_by(Deal.created_at.desc()).limit(5).all()
     recent_users = db.query(User).order_by(User.created_at.desc()).limit(5).all()
 
-
-    # The final returned object now perfectly matches the DashboardData schema
     return {
         "kpis": kpis,
         "monthly_sales_chart_data": monthly_sales_chart_data,
@@ -476,8 +488,6 @@ def get_churn_analysis(db: Session) -> Dict[str, Any]:
     )
     
     cancellation_reasons = [{"reason": r.cancellation_reason, "count": r.count} for r in reason_query]
-    
-    # Reuse existing monthly cancellation rate logic for the chart
     monthly_rates_chart_data = calculate_monthly_cancellation_rate(db)
 
     return {

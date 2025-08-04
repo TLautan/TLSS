@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { DollarSign, Users, CreditCard, Activity as ActivityIcon, Settings } from 'lucide-react';
+import { DollarSign, Package, Percent, Activity as ActivityIcon, Settings, Clock, Briefcase } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -112,62 +112,80 @@ export default function DashboardPage() {
 }
 
 // --- Dashboard Component Sections ---
-function KpiCards({ data, visibleKpis }: { data: DashboardData; visibleKpis?: string[] }) {
-	const allKpis: { [key: string]: React.ReactElement } = {
-		total_revenue: (
-			<Card>
-				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-					<CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-					<DollarSign className="h-4 w-4 text-muted-foreground" />
-				</CardHeader>
-				<CardContent>
-					<div className="text-2xl font-bold">¥{data.kpis.total_value.toLocaleString()}</div>
-					<p className="text-xs text-muted-foreground">総収入 (すべての成約済み取引から)</p>
-				</CardContent>
-			</Card>
-		),
-		win_rate: (
-			<Card>
-				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-					<CardTitle className="text-sm font-medium">Win Rate</CardTitle>
-					<Users className="h-4 w-4 text-muted-foreground" />
-				</CardHeader>
-				<CardContent>
-					<div className="text-2xl font-bold">{data.kpis.win_rate}%</div>
-					<p className="text-xs text-muted-foreground">成約率 (成約した取引の割合)</p>
-				</CardContent>
-			</Card>
-		),
-		total_deals: (
-			<Card>
-				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-					<CardTitle className="text-sm font-medium">Total Deals</CardTitle>
-					<CreditCard className="h-4 w-4 text-muted-foreground" />
-				</CardHeader>
-				<CardContent>
-					<div className="text-2xl font-bold">{data.kpis.total_deals}</div>
-					<p className="text-xs text-muted-foreground">総取引数 (パイプライン内の取引総数)</p>
-				</CardContent>
-			</Card>
-		),
-		average_deal_size: (
-			<Card>
-				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-					<CardTitle className="text-sm font-medium">Average Deal Size</CardTitle>
-					<ActivityIcon className="h-4 w-4 text-muted-foreground" />
-				</CardHeader>
-				<CardContent>
-					<div className="text-2xl font-bold">¥{data.kpis.average_deal_size.toLocaleString()}</div>
-					<p className="text-xs text-muted-foreground">平均取引規模 (成約済み取引の平均価格)</p>
-				</CardContent>
-			</Card>
-		)
-	};
-	return (
-		<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-			{(visibleKpis || []).map(key => <div key={key}>{allKpis[key]}</div>)} 
-		</div>
-	);
+function KpiCards({ data, visibleKpis }: { data: DashboardData, visibleKpis?: string[] }) {
+    const allKpis: { [key: string]: React.ReactNode } = {
+        total_revenue: (
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">総収益</CardTitle>
+                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">¥{data.kpis.total_value.toLocaleString()}</div>
+                </CardContent>
+            </Card>
+        ),
+        win_rate: (
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">成約率</CardTitle>
+                    <Percent className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{data.kpis.win_rate}%</div>
+                </CardContent>
+            </Card>
+        ),
+        total_deals: (
+             <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">合計取引数</CardTitle>
+                    <Package className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{data.kpis.total_deals}</div>
+                </CardContent>
+            </Card>
+        ),
+        average_deal_size: (
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">平均取引規模</CardTitle>
+                    <ActivityIcon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">¥{data.kpis.average_deal_size.toLocaleString()}</div>
+                </CardContent>
+            </Card>
+        ),
+        average_time_to_close: (
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">平均成約時間</CardTitle>
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{data.kpis.average_time_to_close} 日</div>
+                </CardContent>
+            </Card>
+        ),
+        arpu: (
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">ARPU</CardTitle>
+                    <Briefcase className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">¥{data.kpis.arpu.toLocaleString()}</div>
+                </CardContent>
+            </Card>
+        ),
+    };
+    return (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            {(visibleKpis || []).map(key => <div key={key}>{allKpis[key]}</div>)}
+        </div>
+    );
 }
 
 function MonthlySalesChart({ data }: { data: DashboardData }) {
