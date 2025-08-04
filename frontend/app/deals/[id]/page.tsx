@@ -1,13 +1,13 @@
 // frontend/app/deals/[id]/page.tsx
-
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { getDeal, getActivitiesForDeal } from '@/lib/api';
 import { Deal, Activity } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Mail, Phone, Users, Calendar } from 'lucide-react';
 import { NotesSection } from '@/features/notes/components/notes-section';
 import { AttachmentsSection } from '@/features/attachments/components/attachments-section';
@@ -26,6 +26,7 @@ export default function DealDetailPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!id) return;
@@ -71,12 +72,25 @@ export default function DealDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Deal Header */}
-      <div>
-        <h1 className="text-3xl font-bold">{deal.title}</h1>
-        <p className="text-muted-foreground">
-          {deal.company?.company_name} - 担当： {deal.user?.name}
-        </p>
+      {/* Deal Headers */}
+      <div className="flex flex-col space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">取引詳細</h1>
+            <p className="text-lg text-muted-foreground mt-1">{deal.title}</p>
+          </div>
+          <Button onClick={() => router.push(`/deals/${deal.id}/edit`)}>
+            編集
+          </Button>
+        </div>
+        <div className="text-muted-foreground text-sm">
+          <p>
+            **会社:** {deal.company?.company_name || 'N/A'}
+          </p>
+          <p>
+            **担当者:** {deal.user?.name || 'N/A'}
+          </p>
+        </div>
       </div>
 
       {/* Deal Details Card */}

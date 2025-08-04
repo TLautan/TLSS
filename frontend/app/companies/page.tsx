@@ -4,22 +4,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { PageHeader } from '@/components/common/page-header';
+import { DeleteConfirmationDialog } from '@/components/common/delete-confirmation-dialog';
 import { getCompanies, deleteCompany } from '@/lib/api';
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Company } from '@/lib/types';
 
 
@@ -60,7 +52,6 @@ export default function CompaniesListPage() {
       await deleteCompany(companyToDelete.id);
       setShowDeleteDialog(false);
       setCompanyToDelete(null);
-      // Refresh the list after deletion
       fetchCompanies(); 
     } catch (err) {
       setError(`Failed to delete company: ${companyToDelete.company_name}`);
@@ -72,16 +63,15 @@ export default function CompaniesListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">会社一覧 (Company List)</h1>
-          <p className="text-muted-foreground">登録された会社管理表</p>
-        </div>
-        <Link href="/register/company">
-          <Button>+ 会社追加</Button>
-        </Link>
-      </div>
-      
+      <PageHeader
+        title="会社一覧"
+        description="登録された会社管理表"
+        actionElement={
+          <Link href="/register/company">
+            <Button>+ 会社追加</Button>
+          </Link>
+        }
+      />
       <Card>
         <CardContent className="pt-6">
           {loading && <p>Loading companies...</p>}
@@ -140,23 +130,13 @@ export default function CompaniesListPage() {
           )}
         </CardContent>
       </Card>
-
-      {/* Delete Confirmation Dialog */}
-       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
-            <AlertDialogDescription>
-              会社情報が削除されます。
-              <span className="font-bold"> {companyToDelete?.company_name}</span>.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setCompanyToDelete(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        itemName={companyToDelete?.company_name || ''}
+        itemType="company"
+      />
     </div>
   );
 }

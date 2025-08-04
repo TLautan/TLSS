@@ -4,6 +4,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { PageHeader } from '@/components/common/page-header';
+import { DeleteConfirmationDialog } from '@/components/common/delete-confirmation-dialog';
 import { getDeals, deleteDeal, getUsers, getCompanies, DealFilters } from '@/lib/api';
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -21,16 +23,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { ActivityFormModal } from '@/features/activities/components/activity-form-modal';
 
 const useDebounce = (value: string, delay: number) => {
@@ -149,15 +141,15 @@ export default function DealsListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">取引一覧</h1>
-          <p className="text-muted-foreground">販売取引を検索、フィルタリング、管理します。</p>
-        </div>
-        <Link href="/register/deal">
-          <Button>+ 取引登録</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="取引リスト"
+        description="販売取引を検索、フィルタリング、管理します。"
+        actionElement={
+          <Link href="/register/deal">
+            <Button>+ 取引登録</Button>
+          </Link>
+        }
+      />
 
       {/* Filter Controls */}
       <Card>
@@ -287,22 +279,13 @@ export default function DealsListPage() {
           </DialogContent>
       </Dialog>
       
-      {/* Delete Confirmation Dialog */}
-       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
-            <AlertDialogDescription>
-              取引情報が削除されます。
-              <span className="font-bold"> {`"`}{dealToDelete?.title}{`"`}</span>.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDealToDelete(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        itemName={dealToDelete?.title || ''}
+        itemType="deal"
+      />
     </div>
   );
 }

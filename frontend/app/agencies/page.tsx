@@ -4,22 +4,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { PageHeader } from '@/components/common/page-header';
+import { DeleteConfirmationDialog } from '@/components/common/delete-confirmation-dialog';
 import { getAgencies, deleteAgency } from '@/lib/api';
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Agency } from '@/lib/types';
 
 export default function AgenciesListPage() {
@@ -69,16 +61,15 @@ export default function AgenciesListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">代理店一覧 (Agency List)</h1>
-          <p className="text-muted-foreground">代理店管理</p>
-        </div>
-        <Link href="/register/agency">
-          <Button>+ 代理店追加</Button>
-        </Link>
-      </div>
-      
+      <PageHeader
+        title="代理店一覧"
+        description="代理店管理"
+        actionElement={
+          <Link href="/register/agency">
+            <Button>+ 代理店追加</Button>
+          </Link>
+        }
+      />
       <Card>
         <CardContent className="pt-6">
           {loading && <p>ロード中</p>}
@@ -132,22 +123,13 @@ export default function AgenciesListPage() {
           )}
         </CardContent>
       </Card>
-
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
-            <AlertDialogDescription>
-              代理店情報が削除されます。
-              <span className="font-bold"> {agencyToDelete?.agency_name}</span>.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setAgencyToDelete(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        itemName={agencyToDelete?.agency_name || ''}
+        itemType="agency"
+      />
     </div>
   );
 }

@@ -4,6 +4,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { PageHeader } from '@/components/common/page-header';
+import { DeleteConfirmationDialog } from '@/components/common/delete-confirmation-dialog';
 import { getUsers, deleteUser } from '@/lib/api';
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,17 +13,6 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { User } from '@/lib/types';
 import { MoreHorizontal } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
 
 export default function UsersListPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -72,16 +63,15 @@ export default function UsersListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">営業担当者一覧 (Sales Rep List)</h1>
-          <p className="text-muted-foreground">すべての営業担当者を管理します。</p>
-        </div>
-        <Link href="/register/user">
-          <Button>+ ユーザー追加</Button>
-        </Link>
-      </div>
-      
+      <PageHeader
+        title="営業担当者一覧"
+        description="すべての営業担当者を管理します。"
+        actionElement={
+          <Link href="/register/user">
+            <Button>+ ユーザー追加</Button>
+          </Link>
+        }
+      />
       <Card>
         <CardContent className="pt-6">
           <Table>
@@ -126,21 +116,13 @@ export default function UsersListPage() {
         </CardContent>
       </Card>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
-            <AlertDialogDescription>
-              この操作は元に戻せません。ユーザー
-              <span className="font-bold"> {userToDelete?.name}</span> と関連するすべてのデータが完全に削除されます
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setUserToDelete(null)}>取り消し</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        itemName={userToDelete?.name || ''}
+        itemType="user"
+      />
     </div>
   );
 }

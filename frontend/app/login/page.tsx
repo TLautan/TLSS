@@ -1,20 +1,33 @@
 // frontend/app/login/page.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  if (isLoading || isAuthenticated) {
+    return <div>読み込み中</div>;
+  }  
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
@@ -61,7 +74,7 @@ export default function LoginPage() {
             </div>
             {error && <p className="text-sm font-medium text-destructive">{error}</p>}
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? 'ログインしています' : 'ログイン'}
             </Button>
           </form>
         </CardContent>
