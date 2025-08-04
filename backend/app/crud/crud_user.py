@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from app import models
 from app.schemas import user as user_schema
+from typing import Dict, Any
 
 # Setup password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -62,3 +63,13 @@ def delete_user(db: Session, user_id: int):
         db.delete(db_user)
         db.commit()
     return db_user
+
+def update_user_dashboard_preferences(db: Session, user: models.user.User, preferences: Dict[str, Any]) -> models.user.User:
+    """
+    Updates the dashboard_preferences for a given user.
+    """
+    user.dashboard_preferences = preferences
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
