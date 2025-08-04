@@ -68,6 +68,11 @@ export interface DashboardData {
   recent_deals: Deal[];
 }
 
+export interface DashboardComponentProps {
+    data: DashboardData;
+    visibleKpis?: string[];
+}
+
 // Defines the structure for the Agency object
 export interface Agency {
     id: number;
@@ -174,4 +179,9 @@ export interface Attachment {
   uploader?: {
     name: string;
   };
+}
+
+export interface DashboardPreferences {
+  layout: string[];
+  visible_kpis: string[];
 }

@@ -1,9 +1,8 @@
 # backend/app/schemas/user.py
-
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, TYPE_CHECKING
 from datetime import datetime
-from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .deal import Deal
 
@@ -30,15 +29,11 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None
 
 # --- Main Schema with Relationships ---
-from .deal import Deal
-
 class User(UserInDBBase):
     created_at: datetime
     updated_at: datetime
-    deals: List[Deal] = []
+    deals: List['Deal'] = []
     dashboard_preferences: Optional[Dict[str, Any]] = None
+    
     class Config:
         from_attributes = True
-
-
-User.model_rebuild()
