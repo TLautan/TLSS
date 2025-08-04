@@ -1,7 +1,7 @@
 # backend/app/services/analytics_service.py
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func, case, extract
+from sqlalchemy import func, case, extract, or_
 from typing import List, Dict, Any
 from app.models.deal import Deal
 from app.models.company import Company
@@ -328,6 +328,49 @@ def calculate_monthly_cancellation_rate(db: Session) -> List[Dict[str, Any]]:
             "cancellation_rate": round(cancellation_rate, 2)
         })
     return monthly_cancellation_rates
+
+def perform_global_search(db: Session, query: str) -> List[Dict[str, Any]]:
+    """
+    Searches across Users, Companies, and Deals for a given query string.
+    """
+    search_term = f"%{query}%"
+    
+    users = (
+        db.query(User)
+        .filter(or_(User.name.ilike(search_term), User.email.ilike(search_term)))
+        .limit(5)
+        .all()
+    )
+    
+    companies = (
+        db.query(Company)
+        .filter(Company.company_name.ilike(search_term))
+        .limit(5)
+        .all()
+    )
+    
+    deals = (
+        db.query(Deal)
+        .filter(Deal.title.ilike(search_term))
+        .limit(5)
+        .all()
+    )
+    
+    results = []
+    for user in users:
+        results.append({
+            "type": "user", "id": user.id, "name": user.name, "email": user.email
+        })
+    for company in companies:
+        results.append({
+            "type": "company", "id": company.id, "name": company.company_name, "industry": company.industry
+        })
+    for deal in deals:
+        results.append({
+            "type": "deal", "id": deal.id, "name": deal.title, "value": float(deal.value)
+        })
+        
+    return results
 
 """
 For Later Use

@@ -112,3 +112,12 @@ def get_sales_forecast_route(db: Session = Depends(get_db)):
     Endpoint to get a simple sales forecast.
     """
     return analytics_service.get_sales_forecast(db)
+
+@router.get("/search", response_model=List[analytics_schema.SearchResult])
+def global_search_route(q: str, db: Session = Depends(get_db)):
+    """
+    Endpoint for global search across users, companies, and deals.
+    """
+    if not q:
+        return []
+    return analytics_service.perform_global_search(db, query=q)

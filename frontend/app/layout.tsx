@@ -1,26 +1,37 @@
 // frontend/app/layout.tsx
-"use client";
+"use client"; 
 
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/common/sidebar";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { usePathname } from "next/navigation";
+import { GlobalSearch } from "@/components/common/global-search";
 
 const inter = Inter({ subsets: ["latin"] });
 
 function AppContent({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const pathname = usePathname();
 
-  const showSidebar = isAuthenticated && pathname !== '/login';
+  const showLayout = isAuthenticated && pathname !== '/login';
 
   return (
     <div className="flex min-h-screen">
-      {showSidebar && <Sidebar />}
-      <main className="flex-grow">
-        {children}
-      </main>
+      {showLayout && <Sidebar />}
+      <div className="flex flex-col flex-grow">
+        {showLayout && (
+          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-6">
+            <div className="flex-1">
+              <GlobalSearch />
+            </div>
+            <p className="text-sm text-muted-foreground">{user?.name}</p>
+          </header>
+        )}
+        <main className="flex-grow p-6">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

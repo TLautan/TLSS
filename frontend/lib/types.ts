@@ -129,3 +129,26 @@ export interface ForecastEntry {
   month: string;
   projected_revenue: number;
 }
+
+export interface UserSearchResult {
+  type: "user";
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface CompanySearchResult {
+  type: "company";
+  id: number;
+  name: string;
+  industry: string;
+}
+
+export interface DealSearchResult {
+  type: "deal";
+  id: number;
+  name: string;
+  value: number;
+}
+
+export type SearchResult = UserSearchResult | CompanySearchResult | DealSearchResult;

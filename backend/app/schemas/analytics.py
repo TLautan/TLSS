@@ -1,7 +1,7 @@
 # backend/app/schemas/analytics.py
 
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List, Dict, Union, Literal
 from .deal import Deal
 from .user import User
 
@@ -98,3 +98,23 @@ class DealOutcomesData(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserSearchResult(BaseModel):
+    type: Literal["user"] = "user"
+    id: int
+    name: str
+    email: str
+
+class CompanySearchResult(BaseModel):
+    type: Literal["company"] = "company"
+    id: int
+    name: str
+    industry: str
+
+class DealSearchResult(BaseModel):
+    type: Literal["deal"] = "deal"
+    id: int
+    name: str
+    value: float
+
+SearchResult = Union[UserSearchResult, CompanySearchResult, DealSearchResult]

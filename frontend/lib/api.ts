@@ -11,6 +11,7 @@ import {
   DealOutcomesData,
   LeaderboardEntry,
   ForecastEntry,
+  SearchResult,
 } from './types';
 export const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -319,3 +320,11 @@ export interface FastAPIErrorResponse {
 export interface SimpleErrorResponse {
   message: string;
 }
+
+export const globalSearch = async (query: string): Promise<SearchResult[]> => {
+  if (!query) {
+    return [];
+  }
+  const response = await apiClient.get('/analytics/search', { params: { q: query } });
+  return response.data;
+};
