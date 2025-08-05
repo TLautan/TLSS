@@ -151,3 +151,18 @@ def global_search_route(q: str, db: Session = Depends(get_db)):
     if not q:
         return []
     return analytics_service.perform_global_search(db, query=q)
+
+@router.get("/reports/monthly", response_model=analytics_schema.MonthlyReportData)
+def get_monthly_report_route(
+    year: int, 
+    month: int,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(security.get_current_user)
+):
+    """
+    Endpoint to get aggregated data for a monthly report.
+    """
+    if not (1 <= month <= 12):
+        raise HTTPException(status_code=400, detail="Month must be between 1 and 12.")
+    
+    return analytics_service.get_monthly_report_data(db, year=year, month=month)

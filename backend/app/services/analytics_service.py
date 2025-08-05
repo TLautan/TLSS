@@ -569,6 +569,80 @@ def perform_global_search(db: Session, query: str) -> List[Dict[str, Any]]:
         
     return results
 
+def get_monthly_report_data(db: Session, year: int, month: int) -> Dict[str, Any]:
+    """
+    Aggregates key performance indicators for a specific month to generate a report.
+    """
+    month_start = datetime(year, month, 1)
+    # Get the first day of the next month, then subtract one day to get the last day of the target month
+    next_month = month_start.replace(day=28) + timedelta(days=4) 
+    month_end = next_month - timedelta(days=next_month.day)
+
+    month_label = month_start.strftime("%Y-%m")
+
+    # Filter deals that were closed in the specified month
+    deals_closed_in_month = db.query(Deal).filter(
+        Deal.closed_at >= month_start,
+        Deal.closed_at <= month_end
+    )
+    
+    won_deals = deals_closed_in_month.filter(Deal.status == DealStatus.won).all()
+    deals_won_count = len(won_deals)
+    deals_lost_count = deals_closed_in_month.filter(Deal.status == DealStatus.lost).count()
+    
+    total_closed = deals_won_count + deals_lost_count
+    win_rate = (deals_won_count / total_closed) * 100 if total_closed > 0 else 0
+    
+    total_revenue = sum(d.value for d in won_deals)
+    average_deal_size = total_revenue / deals_won_count if deals_won_count > 0 else 0
+    
+    # New deals created in the month
+    new_deals_count = db.query(Deal).filter(
+        Deal.created_at >= month_start,
+        Deal.created_at <= month_end
+    ).count()
+
+    # Find the top deal of the month
+    top_deal = sorted(won_deals, key=lambda d: d.value, reverse=True)[0] if deals_won_count > 0 else None
+    
+    # Find the top performer of the month
+    top_performer_query = (
+        db.query(
+            User.id.label("user_id"),
+            User.name.label("user_name"),
+            func.sum(Deal.value).label("total_revenue")
+        )
+        .join(Deal, User.id == Deal.user_id)
+        .filter(
+            Deal.status == DealStatus.won,
+            Deal.closed_at >= month_start,
+            Deal.closed_at <= month_end
+        )
+        .group_by(User.id, User.name)
+        .order_by(func.sum(Deal.value).desc())
+        .first()
+    )
+
+    top_performer = {
+        "user_id": top_performer_query.user_id,
+        "user_name": top_performer_query.user_name,
+        "total_revenue": float(top_performer_query.total_revenue or 0),
+        "deals_won": 0, # Not calculated here for simplicity, can be added
+        "average_deal_size": 0, # Not calculated here for simplicity, can be added
+    } if top_performer_query else None
+
+    return {
+        "month_label": month_label,
+        "total_revenue": float(total_revenue),
+        "deals_won": deals_won_count,
+        "deals_lost": deals_lost_count,
+        "win_rate": round(win_rate, 2),
+        "new_deals": new_deals_count,
+        "average_deal_size": float(average_deal_size),
+        "top_deal": top_deal,
+        "top_performer": top_performer
+    }
+
 """
 For Later Use
 

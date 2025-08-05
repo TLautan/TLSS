@@ -1,7 +1,7 @@
 # backend/app/schemas/analytics.py
 
 from pydantic import BaseModel
-from typing import List, Dict, Any, Union, Literal
+from typing import List, Dict, Any, Optional, Union, Literal
 from .deal import Deal
 from .user import User
 
@@ -171,6 +171,20 @@ class ChurnAnalysisData(BaseModel):
     annual_churn_rate: float
     monthly_cancellation_rates: List[Dict[str, Any]]
     cancellation_reasons: List[ChurnReasonAnalysis]
+
+    class Config:
+        from_attributes = True
+
+class MonthlyReportData(BaseModel):
+    month_label: str
+    total_revenue: float
+    deals_won: int
+    deals_lost: int
+    win_rate: float
+    new_deals: int
+    average_deal_size: float
+    top_deal: Optional[Deal] = None
+    top_performer: Optional[LeaderboardEntry] = None
 
     class Config:
         from_attributes = True
