@@ -19,6 +19,7 @@ export default function AuditLogPage() {
         const logData = await getAuditLogs();
         setLogs(logData);
       } catch (err) {
+        console.error(err);
         setError('Failed to load audit logs.');
       } finally {
         setLoading(false);

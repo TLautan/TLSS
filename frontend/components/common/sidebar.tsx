@@ -5,20 +5,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, LogIn } from "lucide-react";
 import {
-  Bell,
-  Home,
-  Users,
-  LineChart,
-  Package,
-  CreditCard,
-  Building,
-  KanbanSquare,
-  Upload,
-  FileText,
-  Hammer,
-  Wrench,
+  Bell, Home, Users, LineChart, Package, CreditCard,
+  Building, KanbanSquare, Upload, FileText, Hammer, Wrench, LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -29,6 +18,7 @@ interface NavLink {
 }
 
 interface DropdownLink {
+  id: string;
   label: string;
   icon: React.ElementType;
   sublinks: NavLink[];
@@ -36,10 +26,14 @@ interface DropdownLink {
 
 const Sidebar: React.FC = () => {
   const { logout } = useAuth();
-  const [registerOpen, setRegisterOpen] = useState(false);
-  const [analyticsOpen, setAnalyticsOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const pathname = usePathname();
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  useState(() => {
+    if (pathname.startsWith('/register')) setOpenDropdown('register');
+    if (pathname.startsWith('/analytics')) setOpenDropdown('analytics');
+    if (pathname.startsWith('/settings')) setOpenDropdown('settings');
+  });
 
   const mainLinks: NavLink[] = [
     { href: "/", label: "ダッシュボード", icon: Home },
@@ -48,74 +42,55 @@ const Sidebar: React.FC = () => {
     { href: "/companies", label: "会社一覧 (Companies)", icon: Building },
     { href: "/deals", label: "取引一覧 (Deals)", icon: CreditCard },
     { href: "/agencies", label: "代理店一覧 (Agency)", icon: Users },
-    { href: "/import", label: "データインポート (Import)", icon: Upload },
-    { href: "/analytics/reports/monthly", label: "月次レポート (Reports)", icon: FileText },
   ];
 
-  const registrationLinks: DropdownLink = {
-    label: "登録 (Register)",
-    icon: Package,
-    sublinks: [
-      { href: "/register/user", label: "ユーザー", icon: Users },
-      { href: "/register/company", label: "会社", icon: Building },
-      { href: "/register/deal", label: "取引", icon: CreditCard },
-      { href: "/register/activity", label: "活動", icon: Bell },
-      { href: "/register/agency", label: "代理店", icon: Users },
-    ],
+  const dropdowns: DropdownLink[] = [
+    {
+      id: "register",
+      label: "登録 (Register)",
+      icon: Package,
+      sublinks: [
+        { href: "/register/user", label: "ユーザー", icon: Users },
+        { href: "/register/company", label: "会社", icon: Building },
+        { href: "/register/deal", label: "取引", icon: CreditCard },
+        { href: "/register/activity", label: "活動", icon: Bell },
+        { href: "/register/agency", label: "代理店", icon: Users },
+        { href: "/import", label: "データインポート (Import)", icon: Upload },
+      ],
+    },
+    {
+      id: "analytics",
+      label: "分析 (Analytics)",
+      icon: LineChart,
+      sublinks: [
+        { href: "/analytics/leaderboard", label: "リーダーボード", icon: LineChart },
+        { href: "/analytics/forecast", label: "売上予測", icon: LineChart },
+        { href: "/analytics/channel-performance", label: "チャネル別実績", icon: LineChart },
+        { href: "/analytics/agency-performance", label: "代理店別実績", icon: LineChart },
+        { href: "/analytics/overall_analytics/monthly_churn", label: "月次解約率", icon: LineChart },
+        { href: "/analytics/deal-outcomes", label: "取引成果分析", icon: LineChart },
+        { href: "/analytics/reports/monthly", label: "月次レポート", icon: FileText },
+      ],
+    },
+    {
+        id: "settings",
+        label: "その他 (Other)",
+        icon: Wrench,
+        sublinks: [
+            { href: "/settings/audit-log", label: "監査ログ (Audit Log)", icon: Hammer },
+        ]
+    }
+  ];
+  
+  const toggleDropdown = (id: string) => {
+    setOpenDropdown(prev => (prev === id ? null : id));
   };
+  
+  const isLinkActive = (href: string) => pathname === href;
 
-  const analyticsLinks: DropdownLink = {
-    label: "分析 (Analytics)",
-    icon: LineChart,
-    sublinks: [
-      { href: "/analytics/leaderboard", label: "リーダーボード (Leaderboard)", icon: LineChart },
-      { href: "/analytics/forecast", label: "売上予測 (Forecast)", icon: LineChart },
-      { href: "/analytics/channel-performance", label: "チャネル別実績 (Channels)", icon: LineChart },
-      { href: "/analytics/agency-performance", label: "代理店別実績 (Agencies)", icon: LineChart },
-      { href: "/analytics/overall_analytics/monthly_churn", label: "月次解約率", icon: LineChart },
-      { href: "/analytics/deal-outcomes", label: "取引成果分析", icon: LineChart },
-    ],
-  };
-
-  const settingsLinks: DropdownLink = {
-    label: "その他",
-    icon: Wrench,
-    sublinks: [
-      { href: "/settings/audit-log", label: "ログ", icon: Hammer },
-    ]
+  const isDropdownActive = (dropdown: DropdownLink) => {
+      return dropdown.sublinks.some(sublink => pathname.startsWith(sublink.href));
   }
-
-  const isActiveLink = (href: string): boolean => {
-    if (pathname === href) return true;
-
-    if (href.startsWith('/register') && pathname.startsWith('/register')) {
-      if (!registerOpen) setRegisterOpen(true);
-      return pathname.startsWith(href);
-    }
-    if (href.startsWith('/analytics') && pathname.startsWith('/analytics')) {
-      if (!analyticsOpen) setAnalyticsOpen(true);
-      return pathname.startsWith(href);
-    }
-    if (href.startsWith('/settings') && pathname.startsWith('/settings')) {
-      if (!settingsOpen) setSettingsOpen(true);
-      return pathname.startsWith(href);
-    }
-    return false;
-  };
-
-  const isDropdownActive = (dropdownLabel: string): boolean => {
-    if (dropdownLabel === registrationLinks.label) {
-      return registrationLinks.sublinks.some(sublink => pathname.startsWith(sublink.href));
-    }
-    if (dropdownLabel === analyticsLinks.label) {
-      return analyticsLinks.sublinks.some(sublink => pathname.startsWith(sublink.href));
-    }
-    if (dropdownLabel === settingsLinks.label) {
-      return analyticsLinks.sublinks.some(sublink => pathname.startsWith(sublink.href));
-    }
-    return false;
-  };
-
 
   return (
     <div className="hidden border-r bg-muted/40 md:block">
@@ -134,7 +109,7 @@ const Sidebar: React.FC = () => {
                 key={link.href}
                 href={link.href}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                  isActiveLink(link.href) ? 'bg-muted text-primary' : 'text-muted-foreground'
+                  isLinkActive(link.href) ? 'bg-muted text-primary' : 'text-muted-foreground'
                 }`}
               >
                 <link.icon className="h-4 w-4" />
@@ -142,112 +117,49 @@ const Sidebar: React.FC = () => {
               </Link>
             ))}
 
-            <div className="relative">
-              <Button
-                onClick={() => setRegisterOpen(!registerOpen)}
-                variant="ghost"
-                className={`w-full flex justify-between items-center px-3 py-2 transition-all hover:bg-muted text-left ${
-                  isDropdownActive(registrationLinks.label) ? 'bg-muted text-primary' : 'text-muted-foreground'
-                }`}
-              >
-                <span className="flex items-center gap-3">
-                  <registrationLinks.icon className="h-4 w-4" />
-                  <span>{registrationLinks.label}</span>
-                </span>
-                <span className={`transform transition-transform duration-200 ${registerOpen ? 'rotate-180' : ''}`}>▼</span>
-              </Button>
+            {dropdowns.map((dropdown) => (
+              <div key={dropdown.id} className="relative">
+                <Button
+                  onClick={() => toggleDropdown(dropdown.id)}
+                  variant="ghost"
+                  className={`w-full flex justify-between items-center px-3 py-2 transition-all hover:bg-muted text-left ${
+                    isDropdownActive(dropdown) ? 'bg-muted text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    <dropdown.icon className="h-4 w-4" />
+                    <span>{dropdown.label}</span>
+                  </span>
+                  <span className={`transform transition-transform duration-200 ${openDropdown === dropdown.id ? 'rotate-180' : ''}`}>▼</span>
+                </Button>
 
-              {registerOpen && (
-                <ul className="mt-1 ml-4 space-y-1">
-                  {registrationLinks.sublinks.map((sublink) => (
-                    <li key={sublink.href}>
-                      <Link
-                        href={sublink.href}
-                        className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-muted text-left ${
-                          isActiveLink(sublink.href) ? 'bg-muted text-primary' : 'text-muted-foreground'
-                        }`}
-                      >
-                         {sublink.icon && <sublink.icon className="h-4 w-4" />}
-                        {sublink.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div className="relative">
-              <Button
-                onClick={() => setAnalyticsOpen(!analyticsOpen)}
-                variant="ghost"
-                className={`w-full flex justify-between items-center px-3 py-2 transition-all hover:bg-muted text-left ${
-                  isDropdownActive(analyticsLinks.label) ? 'bg-muted text-primary' : 'text-muted-foreground'
-                }`}
-              >
-                <span className="flex items-center gap-3">
-                  <analyticsLinks.icon className="h-4 w-4" />
-                  <span>{analyticsLinks.label}</span>
-                </span>
-                <span className={`transform transition-transform duration-200 ${analyticsOpen ? 'rotate-180' : ''}`}>▼</span>
-              </Button>
-
-              {analyticsOpen && (
-                <ul className="mt-1 ml-4 space-y-1">
-                  {analyticsLinks.sublinks.map((sublink) => (
-                    <li key={sublink.href}>
-                      <Link
-                        href={sublink.href}
-                        className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-muted text-left ${
-                          isActiveLink(sublink.href) ? 'bg-muted text-primary' : 'text-muted-foreground'
-                        }`}
-                      >
-                        {sublink.icon && <sublink.icon className="h-4 w-4" />}
-                        {sublink.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div className="relative">
-              <Button onClick={() => setSettingsOpen(!settingsOpen)}>
-                variant="ghost"
-                className={`w-full flex justify-between items-center px-3 py-2 transition-all hover:bg-muted text-left ${
-                  isDropdownActive(settingsLinks.label) ? 'bg-muted text-primary' : 'text-muted-foreground'
-                }`}
-              </Button>
-              {settingsOpen && (
-                <ul className="mt-1 ml-4 space-y-1">
-                  <li>
-                    <Link href="/settings/audit-log">
-                      <LogIn className="h-4 w-4" />
-                      監査ログ
-                    </Link>
-                  </li>
-                </ul>
-              )}
-            </div>
-            {/* 
-            <Link
-                href="/analytics/deal-outcomes"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-            >
-                <LineChart className="h-4 w-4" />
-                Analytics (Direct)
-            </Link>
-            */}
+                {openDropdown === dropdown.id && (
+                  <ul className="mt-1 ml-4 space-y-1">
+                    {dropdown.sublinks.map((sublink) => (
+                      <li key={sublink.href}>
+                        <Link
+                          href={sublink.href}
+                          className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-muted text-left ${
+                            pathname.startsWith(sublink.href) ? 'bg-muted text-primary' : 'text-muted-foreground'
+                          }`}
+                        >
+                          {sublink.icon && <sublink.icon className="h-4 w-4" />}
+                          {sublink.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
           </nav>
         </div>
+        
         <div className="mt-auto p-4 border-t">
-          <Link href="/settings" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary">
-            <Users className="h-4 w-4" /> 設定
-          </Link>
-          <div className="mt-auto p-4 border-t">
             <Button variant="ghost" className="w-full justify-start" onClick={logout}>
-              <LogOut className="mr-2 h-4 w-4" />
-                ログアウト
+                <LogOut className="mr-2 h-4 w-4" />
+                ログアウト (Logout)
             </Button>
-          </div>
         </div>
       </div>
     </div>
