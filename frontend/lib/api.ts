@@ -19,6 +19,7 @@ import {
   ChannelAnalyticsData,
   AgencyPerformance,
   ChurnAnalysisData,
+  MonthlyReportData,
 } from './types';
 export const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -310,7 +311,7 @@ export const deleteAgency = async (agencyId: number): Promise<void> => {
     await apiClient.delete(`/agencies/${agencyId}`);
 };
 
-// --- Importer ---
+// --- Import & Export ---
 export interface DealImportData {
   title: string;
   value: number;
@@ -322,6 +323,11 @@ export interface DealImportData {
   product_name?: string;
   forecast_accuracy?: "高" | "中" | "低";
 }
+
+export const getMonthlyReport = async (year: number, month: number): Promise<MonthlyReportData> => {
+    const response = await apiClient.get('/analytics/reports/monthly', { params: { year, month } });
+    return response.data;
+};
 
 export const importDeals = async (deals: DealImportData[]) => {
   const response = await apiClient.post('/importer/deals', deals);

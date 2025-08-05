@@ -238,3 +238,15 @@ export interface UserPerformanceMetrics {
     by_type: { [key: string]: number };
   };
 }
+
+export interface MonthlyReportData {
+  month_label: string;
+  total_revenue: number;
+  deals_won: number;
+  deals_lost: number;
+  win_rate: number;
+  new_deals: number;
+  average_deal_size: number;
+  top_deal?: Deal;
+  top_performer?: LeaderboardEntry;
+}

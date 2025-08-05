@@ -16,6 +16,7 @@ import {
   Building,
   KanbanSquare,
   Upload,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -45,6 +46,7 @@ const Sidebar: React.FC = () => {
     { href: "/deals", label: "取引一覧 (Deals)", icon: CreditCard },
     { href: "/agencies", label: "代理店一覧 (Agency)", icon: Users },
     { href: "/import", label: "データインポート (Import)", icon: Upload },
+    { href: "/analytics/reports/monthly", label: "月次レポート (Reports)", icon: FileText },
   ];
 
   const registrationLinks: DropdownLink = {
