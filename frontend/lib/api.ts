@@ -20,6 +20,7 @@ import {
   AgencyPerformance,
   ChurnAnalysisData,
   MonthlyReportData,
+  AuditLog,
 } from './types';
 export const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
@@ -401,4 +402,9 @@ export const getDashboardPreferences = async (): Promise<DashboardPreferences> =
 export const updateDashboardPreferences = async (preferences: DashboardPreferences): Promise<DashboardPreferences> => {
     const response = await apiClient.put('/users/me/preferences', preferences);
     return response.data;
+};
+
+export const getAuditLogs = async (): Promise<AuditLog[]> => {
+  const response = await apiClient.get('/audit-logs/');
+  return response.data;
 };

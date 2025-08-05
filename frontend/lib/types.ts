@@ -250,3 +250,13 @@ export interface MonthlyReportData {
   top_deal?: Deal;
   top_performer?: LeaderboardEntry;
 }
+
+export interface AuditLog {
+  id: number;
+  action: string;
+  details: string | null;
+  timestamp: string;
+  user: {
+    name: string;
+  } | null;
+}

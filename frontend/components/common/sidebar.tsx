@@ -5,7 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut } from "lucide-react";
+import { LogOut, LogIn } from "lucide-react";
 import {
   Bell,
   Home,
@@ -17,6 +17,8 @@ import {
   KanbanSquare,
   Upload,
   FileText,
+  Hammer,
+  Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -36,6 +38,7 @@ const Sidebar: React.FC = () => {
   const { logout } = useAuth();
   const [registerOpen, setRegisterOpen] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const pathname = usePathname();
 
   const mainLinks: NavLink[] = [
@@ -74,6 +77,14 @@ const Sidebar: React.FC = () => {
     ],
   };
 
+  const settingsLinks: DropdownLink = {
+    label: "その他",
+    icon: Wrench,
+    sublinks: [
+      { href: "/settings/audit-log", label: "ログ", icon: Hammer },
+    ]
+  }
+
   const isActiveLink = (href: string): boolean => {
     if (pathname === href) return true;
 
@@ -85,7 +96,10 @@ const Sidebar: React.FC = () => {
       if (!analyticsOpen) setAnalyticsOpen(true);
       return pathname.startsWith(href);
     }
-
+    if (href.startsWith('/settings') && pathname.startsWith('/settings')) {
+      if (!settingsOpen) setSettingsOpen(true);
+      return pathname.startsWith(href);
+    }
     return false;
   };
 
@@ -94,6 +108,9 @@ const Sidebar: React.FC = () => {
       return registrationLinks.sublinks.some(sublink => pathname.startsWith(sublink.href));
     }
     if (dropdownLabel === analyticsLinks.label) {
+      return analyticsLinks.sublinks.some(sublink => pathname.startsWith(sublink.href));
+    }
+    if (dropdownLabel === settingsLinks.label) {
       return analyticsLinks.sublinks.some(sublink => pathname.startsWith(sublink.href));
     }
     return false;
@@ -189,6 +206,24 @@ const Sidebar: React.FC = () => {
                       </Link>
                     </li>
                   ))}
+                </ul>
+              )}
+            </div>
+            <div className="relative">
+              <Button onClick={() => setSettingsOpen(!settingsOpen)}>
+                variant="ghost"
+                className={`w-full flex justify-between items-center px-3 py-2 transition-all hover:bg-muted text-left ${
+                  isDropdownActive(settingsLinks.label) ? 'bg-muted text-primary' : 'text-muted-foreground'
+                }`}
+              </Button>
+              {settingsOpen && (
+                <ul className="mt-1 ml-4 space-y-1">
+                  <li>
+                    <Link href="/settings/audit-log">
+                      <LogIn className="h-4 w-4" />
+                      監査ログ
+                    </Link>
+                  </li>
                 </ul>
               )}
             </div>
