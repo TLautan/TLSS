@@ -15,6 +15,10 @@ from app.models.company import Company
 from app.models.deal import Deal
 from app.models.user import User
 from app.models.agency import Agency
+from app.models.note import Note
+from app.models.attachment import Attachment
+from app.models.audit_log import AuditLog
+from app.models.enums import enum
 
 config = context.config
 

@@ -1,7 +1,10 @@
+# backend/app/seed_all.py
+
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from faker import Faker # type: ignore
+from sqlalchemy.exc import IntegrityError # Import IntegrityError for exception handling
+from faker import Faker
 
 from app.database import SessionLocal
 from app import models, crud
@@ -12,133 +15,138 @@ from app.schemas import deal as deal_schema
 from app.schemas import activity as activity_schema
 from app.models.enums import DealStatus, DealType, ForecastAccuracy, ActivityType
 
+# Initialize Faker for Japanese data
 fake = Faker('ja_JP')
+
+# --- CONFIGURATION ---
+NEW_USERS = 10
+NEW_COMPANIES = 50
+NEW_AGENCIES = 5
+NEW_DEALS = 2500
+ACTIVITIES_PER_DEAL_RANGE = (1, 10)
+DAYS_IN_PAST = 365 * 3
+
+# --- DATA POOLS ---
+INDUSTRIES = ["テクノロジー", "製造", "金融", "ヘルスケア", "小売", "コンサルティング", "不動産", "運輸", "教育", "サービス"]
+PRODUCTS = ["Pro Plan", "Enterprise Suite", "Basic Service", "Standard Package", "Custom Solution"]
+LEAD_SOURCES = ["Web", "Referral", "Event", "Cold Call", "Partner", "Advertisement"]
+WIN_REASONS = ["価格", "機能性", "サポート体制", "ブランド信頼性", "導入実績"]
+LOSS_REASONS = ["競合に敗北", "予算オーバー", "時期尚早", "機能不足", "担当者変更"]
+CANCEL_REASONS = ["プロジェクト中止", "経営方針の変更", "予算削減"]
+NOTES_POOL = [
+    "Initial contact made, sent follow-up email.", "Discovery call completed.", "Product demo scheduled.",
+    "Sent proposal and pricing information.", "Client is reviewing the proposal.", "Negotiating terms.",
+    "Verbal agreement received. Waiting for the signed contract.",
+]
 
 def seed_database():
     """
-    Populates the database with a rich set of sample data for all models.
-    This script is idempotent: it checks for existing data before seeding.
+    MODIFIED: This script now ALWAYS adds new data and gracefully handles
+    unique constraint violations to allow for repeated runs.
     """
     db: Session = SessionLocal()
 
     try:
-        print("🚀 Starting comprehensive database seeding...")
+        print("🚀 Starting aggressive database seeding...")
 
-        # --- 1. Create Users ---
-        print("👤 Seeding Users...")
-        users = []
-        if db.query(models.User).count() == 0:
-            for _ in range(10):
-                name = fake.name()
-                user_data = user_schema.UserCreate(
-                    name=name,
-                    email=fake.unique.email(),
-                    password="password123"
-                )
-                db_user = crud.user.create_user(db, user=user_data)
-                users.append(db_user)
-            print("   - 10 new users created.")
-        else:
-            print("   - Users already exist, skipping.")
-        users = db.query(models.User).all() # Always fetch users to ensure they are available for deals
+        print("🔍 Fetching existing records...")
+        users = db.query(models.User).all()
+        companies = db.query(models.Company).all()
+        agencies = db.query(models.Agency).all()
+        print(f"   - Found {len(users)} users, {len(companies)} companies, {len(agencies)} agencies.")
 
+        # --- Add NEW Users ---
+        print(f"👤 Adding up to {NEW_USERS} new users...")
+        for _ in range(NEW_USERS):
+            try:
+                user_data = user_schema.UserCreate(name=fake.name(), email=fake.unique.email(), password="password123")
+                crud.user.create_user(db, user=user_data)
+            except IntegrityError:
+                db.rollback() # Rollback the failed transaction
+                print(f"   - WARNING: Skipped creating a user due to duplicate email.")
+        users = db.query(models.User).all()
+        print(f"   - Total users now: {len(users)}")
 
-        # --- 2. Create Companies ---
-        print("🏢 Seeding Companies...")
-        companies = []
-        industries = ["テクノロジー", "製造", "金融", "ヘルスケア", "小売", "コンサルティング", "不動産", "運輸"]
-        if db.query(models.Company).count() == 0:
-            for _ in range(50):
+        # --- Add NEW Companies ---
+        print(f"🏢 Adding up to {NEW_COMPANIES} new companies...")
+        for _ in range(NEW_COMPANIES):
+            try:
                 company_name = fake.unique.company()
+                company_kana = fake.kana_name() # Generate a kana name
                 company_data = company_schema.CompanyCreate(
                     company_name=company_name,
-                    industry=random.choice(industries)
+                    company_kana=company_kana,
+                    industry=random.choice(INDUSTRIES)
                 )
-                db_company = crud.company.create_company(db, company=company_data)
-                companies.append(db_company)
-            print("   - 50 new companies created.")
-        else:
-            print("   - Companies already exist, skipping.")
+                crud.company.create_company(db, company=company_data)
+            except IntegrityError:
+                db.rollback()
+                print(f"   - WARNING: Skipped creating a company due to duplicate name.")
         companies = db.query(models.Company).all()
+        print(f"   - Total companies now: {len(companies)}")
 
-
-        # --- 3. Create Agencies ---
-        print("🤝 Seeding Agencies...")
-        if db.query(models.Agency).count() == 0:
-            for _ in range(5): # Create 5 agencies
-                agency_name = f"{fake.company()}代理店"
+        # --- Add NEW Agencies ---
+        print(f"🤝 Adding up to {NEW_AGENCIES} new agencies...")
+        for _ in range(NEW_AGENCIES):
+            try:
                 agency_data = agency_schema.AgencyCreate(
-                    agency_name=agency_name,
+                    agency_name=f"{fake.unique.company()}代理店",
                     contact_person=fake.name(),
                     contact_email=fake.unique.email()
                 )
                 crud.agency.create_agency(db, agency=agency_data)
-            print("   - 5 new agencies created.")
-        else:
-            print("   - Agencies already exist, skipping.")
+            except IntegrityError:
+                db.rollback()
+                print(f"   - WARNING: Skipped creating an agency due to duplicate name or email.")
+        agencies = db.query(models.Agency).all()
+        print(f"   - Total agencies now: {len(agencies)}")
         
-        
-        # --- 4. Create Deals and Activities over the last 3 years ---
-        if db.query(models.Deal).count() > 0:
-            print("📊 Deals already exist. Skipping deal and activity creation.")
-        elif not users or not companies:
-            print("⚠️ Skipping Deals and Activities: No users or companies found to associate with deals.")
-        else:
-            print("📊 Seeding Deals and Activities for the past 3 years...")
-            total_deals = 0
-            total_activities = 0
-            today = datetime.now(timezone.utc)
+        # --- Add a large batch of NEW Deals and Activities ---
+        print(f"📊 Seeding {NEW_DEALS} NEW Deals and associated Activities...")
+        if not users or not companies:
+            print("   - Cannot create deals without users and companies. Skipping.")
+            return
 
-            for i in range(500): # Create 500 deals
-                created_date = today - timedelta(days=random.randint(0, 365 * 3))
-                
-                status_choice = random.choices(list(DealStatus), weights=[20, 45, 25, 10], k=1)[0]
-                closed_date = None
-                
-                if status_choice != DealStatus.in_progress:
-                    closed_date = created_date + timedelta(days=random.randint(15, 90))
-                
-                # Ensure user_id and company_id are chosen from existing, non-empty lists
-                if not users or not companies:
-                    print("   - Skipping deal creation: No users or companies available.")
-                    break # Exit loop if essential data is missing
+        total_activities = 0
+        today = datetime.now()
 
-                new_deal = deal_schema.DealCreate(
-                    title=f"{created_date.strftime('%Y-%m')} {fake.bs()} Project",
-                    value=random.randrange(100000, 10000000, 50000),
-                    user_id=random.choice(users).id,
-                    company_id=random.choice(companies).id,
-                    status=status_choice,
-                    type=random.choice(list(DealType)),
-                    forecast_accuracy=random.choice(list(ForecastAccuracy)),
-                    lead_source=random.choice(["Web", "Referral", "Event", "Cold Call"]),
-                    product_name=random.choice(["Pro Plan", "Enterprise Suite", "Basic Service", "Standard Package"]),
-                    closed_at=closed_date,
-                    lead_generated_at=created_date
+        for _ in range(NEW_DEALS):
+            # ... (deal and activity creation logic remains the same)
+            created_date = today - timedelta(days=random.randint(0, DAYS_IN_PAST))
+            status_choice = random.choices(list(DealStatus), weights=[40, 35, 20, 5], k=1)[0]
+            type_choice = random.choices(list(DealType), weights=[70, 30], k=1)[0]
+            closed_date, win_reason, loss_reason, cancellation_reason, agency_id = None, None, None, None, None
+            if status_choice != DealStatus.in_progress:
+                closed_date = created_date + timedelta(days=random.randint(15, 90))
+                if status_choice == DealStatus.won: win_reason = random.choice(WIN_REASONS)
+                elif status_choice == DealStatus.lost: loss_reason = random.choice(LOSS_REASONS)
+                elif status_choice == DealStatus.cancelled: cancellation_reason = random.choice(CANCEL_REASONS)
+            if type_choice == DealType.agency and agencies:
+                agency_id = random.choice(agencies).id
+            new_deal = deal_schema.DealCreate(
+                title=f"{created_date.strftime('%Y-%m')} {fake.bs()} Project",
+                value=random.randrange(100000, 10000000, 50000),
+                user_id=random.choice(users).id,
+                company_id=random.choice(companies).id,
+                status=status_choice, type=type_choice,
+                forecast_accuracy=random.choice(list(ForecastAccuracy)),
+                lead_source=random.choice(LEAD_SOURCES),
+                product_name=random.choice(PRODUCTS),
+                closed_at=closed_date, win_reason=win_reason, loss_reason=loss_reason,
+                cancellation_reason=cancellation_reason, agency_id=agency_id
+            )
+            created_deal = crud.deal.create_deal(db=db, deal=new_deal, current_user_id=new_deal.user_id)
+            for _ in range(random.randint(*ACTIVITIES_PER_DEAL_RANGE)):
+                activity_date = created_date + timedelta(days=random.randint(1, 30))
+                new_activity = activity_schema.ActivityCreate(
+                    deal_id=created_deal.id, type=random.choice(list(ActivityType)),
+                    date=activity_date, notes=random.choice(NOTES_POOL)
                 )
-                
-                created_deal = crud.deal.create_deal(db, deal=new_deal)
-                
-                # --- FIX: Check if deal creation was successful ---
-                if created_deal: # Only proceed if the deal object was successfully created and has an ID
-                    total_deals += 1
-                    # Create associated activities for each deal
-                    for _ in range(random.randint(1, 8)):
-                        activity_date = created_date + timedelta(days=random.randint(1, 30))
-                        
-                        new_activity = activity_schema.ActivityCreate(
-                            deal_id=created_deal.id, # This is where the deal_id comes from
-                            type=random.choice(list(ActivityType)),
-                            date=activity_date,
-                            notes=fake.sentence(nb_words=12)
-                        )
-                        crud.activity.create_activity(db, activity=new_activity)
-                        total_activities += 1
-                else:
-                    print(f"   - WARNING: Deal creation failed for one record. Skipping associated activities.")
-
-
-            print(f"   - Created {total_deals} deals and {total_activities} activities.")
+                crud.activity.create_activity(db, activity=new_activity)
+                total_activities += 1
+        
+        total_deals = db.query(models.Deal).count()
+        print(f"   - Created {NEW_DEALS} new deals and {total_activities} new activities. Total deals in DB: {total_deals}")
 
         print("\n✅ Seeding complete!")
 

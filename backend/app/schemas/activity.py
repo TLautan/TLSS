@@ -1,25 +1,26 @@
 # backend/app/schemas/activity.py
 
 from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
-from app.models.activity import ActivityType # Import the Enum from your model
+from typing import Optional
+from app.models.enums import ActivityType
 
-# Base schema with all common fields
 class ActivityBase(BaseModel):
-    type: ActivityType # Use the Enum for validation
+    type: ActivityType
     notes: Optional[str] = None
-    date: Optional[datetime] = None
+    date: datetime
+    deal_id: int
 
-# Schema for creating a new activity
+    class Config:
+        use_enum_values = True
+
 class ActivityCreate(ActivityBase):
     pass
 
-# Schema for returning activity data from the API
 class Activity(ActivityBase):
     id: int
     created_at: datetime
     updated_at: datetime
-
+    
     class Config:
         from_attributes = True

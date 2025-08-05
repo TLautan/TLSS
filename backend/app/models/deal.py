@@ -33,6 +33,7 @@ class Deal(Base):
 
     user = relationship("User", back_populates="deals")
     company = relationship("Company", back_populates="deals")
+    activities = relationship("Activity", back_populates="deal", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Deal(id={self.id}, title='{self.title}', status='{self.status.value}')>"
