@@ -1,12 +1,13 @@
 // frontend/features/deals/components/deal-form.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Combobox, ComboboxOption } from "@/components/ui/combobox";
 import { DEAL_STATUSES, DEAL_TYPES, LEAD_SOURCES, PRODUCTS, FORECAST_ACCURACY } from '@/lib/constants';
 import { User, Company } from '@/lib/types';
 
@@ -39,6 +40,16 @@ export const DealForm = ({ users, companies, initialData, onSubmit, isLoading }:
     company_id: '', lead_source: '', product_name: '', forecast_accuracy: '',
     win_reason: '', loss_reason: '', cancellation_reason: ''
   });
+
+  const companyOptions: ComboboxOption[] = useMemo(() => 
+    companies.map(c => ({ value: String(c.id), label: c.company_name })),
+    [companies]
+  );
+  
+  const userOptions: ComboboxOption[] = useMemo(() => 
+    users.map(u => ({ value: String(u.id), label: u.name })),
+    [users]
+  );
 
   useEffect(() => {
     if (initialData) {
@@ -93,22 +104,26 @@ export const DealForm = ({ users, companies, initialData, onSubmit, isLoading }:
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-            <Label>Company</Label>
-            <Select onValueChange={(v) => handleInputChange('company_id', v)} value={formData.company_id}>
-                <SelectTrigger><SelectValue placeholder="会社名" /></SelectTrigger>
-                <SelectContent>
-                {companies.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.company_name}</SelectItem>)}
-                </SelectContent>
-            </Select>
+              <Label>会社</Label>
+              <Combobox
+                options={companyOptions}
+                value={formData.company_id}
+                onChange={(value) => handleInputChange('company_id', value)}
+                placeholder="会社選択"
+                searchPlaceholder="会社検索"
+                emptyPlaceholder="会社が見つかりませんでした"
+              />
             </div>
             <div className="space-y-2">
-            <Label>営業担当</Label>
-            <Select onValueChange={(v) => handleInputChange('user_id', v)} value={formData.user_id}>
-                <SelectTrigger><SelectValue placeholder="担当名" /></SelectTrigger>
-                <SelectContent>
-                {users.map(u => <SelectItem key={u.id} value={String(u.id)}>{u.name}</SelectItem>)}
-                </SelectContent>
-            </Select>
+              <Label>担当</Label>
+              <Combobox
+                options={userOptions}
+                value={formData.user_id}
+                onChange={(value) => handleInputChange('user_id', value)}
+                placeholder="ユーザー選択"
+                searchPlaceholder="ユーザー検索"
+                emptyPlaceholder="ユーザーが見つかりませんでした"
+              />
             </div>
         </div>
 
