@@ -1,6 +1,6 @@
 # backend/app/routers/users.py
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
 from app.schemas import user as user_schema
@@ -16,12 +16,20 @@ router = APIRouter(
 @router.post("/", response_model=user_schema.User, status_code=201)
 def create_new_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
     """
-    Create a new user. Checks for existing email.
+    Create a new user. Checks for existing email and restricts by domain.
     This endpoint is public and does not require authentication.
     """
+    ALLOWED_DOMAIN = "softsu.co.jp"
+    if not user.email.endswith(f"@{ALLOWED_DOMAIN}"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Registration is only allowed for users with a @{ALLOWED_DOMAIN} email address."
+        )
+
     db_user = crud_user.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
+        
     return crud_user.create_user(db=db, user=user)
 
 @router.get("/me", response_model=user_schema.User)
