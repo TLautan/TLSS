@@ -1,7 +1,7 @@
 # backend/app/schemas/deal.py
 
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 from app.models.deal import DealStatus, DealType, ForecastAccuracy
 from .user import User, UserInDBBase as UserSchema

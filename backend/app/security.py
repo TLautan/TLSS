@@ -9,7 +9,7 @@ from jose import JWTError, jwt
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app import crud, models
+from app import crud
 from app.database import get_db
 
 SECRET_KEY = "your-very-secret-key" 

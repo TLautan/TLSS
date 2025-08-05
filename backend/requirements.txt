@@ -14,4 +14,3 @@ httpx
 Faker>=19.0.0
 python-jose[cryptography]
 pytest
-python-multipart

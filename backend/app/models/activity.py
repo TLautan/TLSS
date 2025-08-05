@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
-from .enums import ActivityType # <-- IMPORT FROM enums.py
+from .enums import ActivityType
 
 class Activity(Base):
     __tablename__ = "activities"
@@ -13,7 +13,6 @@ class Activity(Base):
     id = Column(Integer, primary_key=True, index=True)
     deal_id = Column(Integer, ForeignKey("deals.id"), nullable=False)
     
-    # Use the imported enum, but tell SQLAlchemy to treat it as an external type
     type = Column(ENUM(ActivityType, name='activity_type', create_type=False), nullable=False)
     
     date = Column(DateTime(timezone=True), server_default=func.now())
