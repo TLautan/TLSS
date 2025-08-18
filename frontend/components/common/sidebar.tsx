@@ -1,7 +1,7 @@
 // frontend/components/common/sidebar.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,11 +29,13 @@ const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     if (pathname.startsWith('/register')) setOpenDropdown('register');
-    if (pathname.startsWith('/analytics')) setOpenDropdown('analytics');
-    if (pathname.startsWith('/settings')) setOpenDropdown('settings');
-  });
+    else if (pathname.startsWith('/analytics')) setOpenDropdown('analytics');
+    else if (pathname.startsWith('/settings')) setOpenDropdown('settings');
+    else setOpenDropdown(null);
+  }, [pathname]);
+
 
   const mainLinks: NavLink[] = [
     { href: "/", label: "ダッシュボード", icon: Home },
@@ -93,7 +95,7 @@ const Sidebar: React.FC = () => {
   }
 
   return (
-    <div className="hidden border-r bg-muted/40 md:block">
+    <div className="hidden border-r bg-muted/40 md:block w-64 sticky top-0 h-screen">
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
           <Link href="/" className="flex items-center gap-2 font-semibold">
@@ -102,7 +104,7 @@ const Sidebar: React.FC = () => {
           </Link>
         </div>
 
-        <div className="flex-1 overflow-auto py-2">
+        <div className="flex-1 overflow-y-auto py-2">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
             {mainLinks.map((link) => (
               <Link
@@ -130,7 +132,7 @@ const Sidebar: React.FC = () => {
                     <dropdown.icon className="h-4 w-4" />
                     <span>{dropdown.label}</span>
                   </span>
-                  <span className={`transform transition-transform duration-200 ${openDropdown === dropdown.id ? 'rotate-180' : ''}`}>▼</span>
+                  <span className={`transform transition-transform duration-200 ${openDropdown === dropdown.id ? 'rotate-180' : ''}`}>▲</span>
                 </Button>
 
                 {openDropdown === dropdown.id && (

@@ -1,5 +1,5 @@
 // frontend/app/layout.tsx
-"use client"; 
+"use client";
 
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -10,18 +10,27 @@ import { GlobalSearch } from "@/components/common/global-search";
 
 const inter = Inter({ subsets: ["latin"] });
 
+
 function AppContent({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
   const pathname = usePathname();
 
   const showLayout = isAuthenticated && pathname !== '/login';
+  
+  if (isLoading) {
+      return (
+          <div className="flex h-screen w-full items-center justify-center">
+              Loading Application...
+          </div>
+      );
+  }
 
   return (
     <div className="flex min-h-screen">
       {showLayout && <Sidebar />}
-      <div className="flex flex-col flex-grow">
+      <div className="flex flex-col flex-grow w-full">
         {showLayout && (
-          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-6">
+          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-6 sticky top-0 z-10">
             <div className="flex-1">
               <GlobalSearch />
             </div>

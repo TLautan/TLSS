@@ -8,9 +8,9 @@ app = FastAPI(title="営業管理システム")
 
 origins = [
     "http://localhost",
-    "http://192.168.1.115",
+    "http://192.168.1.22",
     "http://localhost:3000",
-    "http://192.168.1.115:3000",
+    "http://192.168.1.22:3000",
 ]
 
 app.add_middleware(
